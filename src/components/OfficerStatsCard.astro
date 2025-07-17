@@ -1,0 +1,83 @@
+---
+export interface Props {
+  title: string;
+  desc: string;
+  icon?: string;
+  specValue: string;
+  monto?: string;
+}
+
+const { title } = Astro.props;
+const { desc } = Astro.props;
+const { icon } = Astro.props;
+const { specValue } = Astro.props;
+const { monto } = Astro.props;
+---
+
+<div class="card">
+    <div class="card-title">
+        <span class="material-symbols-rounded">{icon}</span>
+        <h4>{title}</h4>
+    </div>
+    <div class="card-content">
+        <p>{desc}</p>
+        <div class="stats">
+            <p class="total">{specValue}</p>
+            <p class="monto">{monto}</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    div.card {
+        background: var(--bg-secondary);
+        border-radius: 5px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+        border: 1px solid var(--border-color);
+    }
+    
+    .card-title {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.25rem;
+        color: var(--text-tertiary);
+    }
+
+    h4 {
+        font-weight: 400;
+    }
+
+    br {
+        margin: 8px 0;
+    }
+
+    .stats {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    p {
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+
+    .total {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .monto {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--accent-blue);
+        margin-top: 8px;
+    }
+</style>

@@ -1,0 +1,59 @@
+---
+import defaultPic from "../assets/default-pic.jpg";
+export interface Props {
+    id: string;
+  name: string;
+  surname: string;
+  mugshot?: string;
+}
+
+const { id } = Astro.props; 
+const { name } = Astro.props; 
+const { surname } = Astro.props; 
+const { mugshot } = Astro.props; 
+const profilePic = mugshot || defaultPic.src;
+---
+<div class="card">
+    <a href="">
+    <div class="citizen-img">
+            <img src={profilePic} alt="">
+        </div>
+        <div class="card-footer">
+            <div class="citizen-data">
+                <h3>{name} {surname}</h3>
+                <p>{id}</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<style>
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .citizen-img img{
+        max-width: 250px;
+        width: 100%;
+        border-radius: 25px 25px 0px 0px;
+    }
+
+    .card {
+        background: var(--bg-secondary);
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+        border: 1px solid var(--border-color);
+        max-width: 250px;
+        border-radius: 25px 25px 5px 5px;
+    }
+
+    .citizen-data {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+</style>

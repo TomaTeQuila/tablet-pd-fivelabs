@@ -1,22 +1,104 @@
-<!doctype html>
+---
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+import Sidebar from '../components/Sidebar.astro';
+import TabletNavbar from '../components/TabletNavbar.astro';
+---
+
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Police System App" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />    <title>{title}</title>
+  </head>
+  <body>
+    <div class="tablet-container">
+      <TabletNavbar />
+      <div class="app-container">
+        <Sidebar />
+        <div class="app-body">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+	html {
+		height: 100vh;	
 	}
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #2d1c2e;
+    color: #fff;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95vh;
+  }
+
+  :root {
+    --app-width: 1400px;
+    --app-height: 900px;
+    --bg-primary: #06080f;
+    --bg-secondary: #161920;
+    --bg-secondary-alt: #182239;
+    --bg-tertiary: #252b3d;
+    --bg-card: #1e2532;
+    --bg-elevated: #2a3441;
+    --border-color: #333f52;
+    --border-light: #3a4553;
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --text-tertiary: #e7e7e787;
+    --text-muted: #718096;
+    --text-active: #b5d5f6;
+    --accent-blue: #4299e1;
+	  --accent-darker-blue: #2e3f5f;
+    --accent-green: #48bb78;
+    --accent-red: #f56565;
+    --accent-yellow: #ed8936;
+    --accent-purple: #9f7aea;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .app-container {
+    width: var(--app-width);
+    height: var(--app-height);
+    background-image: linear-gradient(to right bottom, var(--bg-primary), #0d111f, #101424, #131729, #161a2e, #191d33, #1c2038, #1f233d, #212541, #242746, #26294a, #282b4f);
+    border-radius: 0px 0px 16px 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    border-top: 0px;
+  }
+
+  .app-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-content: center;
+    width: 100%;
+  }
+  
 </style>

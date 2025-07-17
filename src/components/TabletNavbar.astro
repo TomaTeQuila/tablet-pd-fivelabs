@@ -1,0 +1,134 @@
+---
+var time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+---
+
+<nav class="tablet-navbar">
+  <div class="status-bar">
+    <div class="time">{time}</div>
+    <div class="right-icons">
+      <div class="signal-bars">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+      <div class="battery">
+        <div class="battery-level">75</div>
+        <div class="battery-icon">
+          <div class="battery-body">
+            <div class="battery-fill"></div>
+          </div>
+          <div class="battery-cap"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .tablet-navbar {
+    background-color: rgb(0, 0, 0);
+    color: #fff;
+    padding: 10px 32px;
+    font-family: 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    position: relative;
+    z-index: 100;
+    user-select: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    border-radius: 16px 16px 0px 0px;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 28px;
+  }
+
+  .time {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .right-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .signal-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 14px;
+    margin-right: 5px;
+  }
+
+  .signal-bars .bar {
+    width: 3.5px;
+    background-color: #fff;
+    border-radius: 1px;
+  }
+
+  .signal-bars .bar:nth-child(1) {
+    height: 5px;
+  }
+
+  .signal-bars .bar:nth-child(2) {
+    height: 7px;
+  }
+
+  .signal-bars .bar:nth-child(3) {
+    height: 10px;
+  }
+
+  .signal-bars .bar:nth-child(4) {
+    height: 13px;
+  }
+
+  .battery {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .battery-level {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .battery-icon {
+    display: flex;
+    align-items: center;
+  }
+
+  .battery-body {
+    width: 28px;
+    height: 14px;
+    border: 1.5px solid #fff;
+    border-radius: 3px;
+    padding: 1.5px;
+    position: relative;
+  }
+
+  .battery-fill {
+    width: 74%;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 1.5px;
+    transition: width 0.3s ease;
+  }
+
+  .battery-cap {
+    width: 2px;
+    height: 6px;
+    background-color: #fff;
+    border-radius: 0 1px 1px 0;
+    margin-left: 1px;
+  }
+
+</style>

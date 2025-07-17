@@ -1,11 +1,95 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import OfficerStatsCard from "../components/OfficerStatsCard.astro";
+
+const sourceData = {
+    name: "Pepito",
+    surname: "Perez",
+    gender: "m",
+    badge: "PD-1234",
+    rank: "Oficial",
+    serviceHours: 65,
+}
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Home">
+    <div class="body-header">
+        <div class="body-header-items">
+            <div class="body-header-items-top">
+                <span class="police-icon material-symbols-rounded">local_police</span>
+                <h1>
+                    {sourceData.gender == 'm' ? 'Sr.' : "Sra."} 
+                    <span class="header-h1-name">
+                        {sourceData.name} 
+                        {sourceData.surname}
+                    </span>
+                </h1>
+            </div>
+
+            <p>Sistema centralizado de la policia nacional</p>
+        </div>
+    </div>
+    <div class="body-content">
+        <OfficerStatsCard title="Total multas", 
+        desc="Total de multas impuestas y cobradas por el oficial"
+        icon="payments" specValue="10" monto="50000$"/>
+        <OfficerStatsCard title="Total horas de servicio", 
+        desc="Total de horas ejercidas en servicio por el oficial"
+        icon="av_timer" specValue={String(sourceData.serviceHours)}/>
+        <OfficerStatsCard title="Rango", 
+        desc="Rango actual del oficial"
+        icon="social_leaderboard" specValue={sourceData.rank}/>
+    </div>
 </Layout>
+
+<style>
+    .body-header {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        margin: 1.25rem;
+    }
+
+    .body-header-items-top {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .body-header-items p {
+        font-size: 1rem;
+        color: var(--text-tertiary);
+    }
+
+    .body-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+        font-family: 'Funnel Display', sans-serif;
+        font-weight: 400;
+    }
+
+    .header-h1-name {
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    span {
+        font-size: 1.4rem;
+        margin-right: 0.5rem;
+    }
+
+    .police-icon {
+        font-size: 1.75rem;
+        color: var(--accent-blue);
+        margin-right: 0.5rem;
+    }
+</style>
