@@ -1,0 +1,27 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import CitizenCard from "../../components/CitizenCard.astro";
+import { ciudadanos } from "../../data/citizens";
+
+// exportar rutas dinámicas
+export function getStaticPaths() {
+  return Object.values(ciudadanos).map((c) => ({
+    params: { id: c.id },
+    props: c
+  }));
+}
+
+// obtener props de Astro
+const { id, name, surname, mugshot } = Astro.props;
+---
+
+<Layout title={`Ciudadano ${name} ${surname}`}>
+  <div class="body-content">
+    <CitizenCard 
+      id={id}
+      name={name}
+      surname={surname}
+      mugshot={mugshot}
+    />
+  </div>
+</Layout>
