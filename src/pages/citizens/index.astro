@@ -3,28 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 
 import CitizenCard from "../../components/CitizenCard.astro";
 
-const ciudadanos = {
-  "Z1001": { id: "Z1001", name: "Laura", surname: "González", mugshot: "https://randomuser.me/api/portraits/women/44.jpg" },
-  "Z1002": { id: "Z1002", name: "Carlos", surname: "Muñoz", mugshot: "https://randomuser.me/api/portraits/men/46.jpg" },
-  "Z1003": { id: "W3N0P4LÑ4T0", name: "Chupa", surname: "Pico", mugshot: "https://media.licdn.com/dms/image/v2/D4E03AQG40P3EGK4BTQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1732139178520?e=1758153600&v=beta&t=6r701DZ_owZGvdOqzY-S3TQIGi6xdcAaQjXF8zJdGNM" },
-  "Z1004": { id: "Z1004", name: "Tomás", surname: "Pérez", mugshot: "" },
-  "Z1005": { id: "Z1005", name: "Antonia", surname: "Silva", mugshot: "https://randomuser.me/api/portraits/women/65.jpg" },
-  "Z1006": { id: "Z1006", name: "Martín", surname: "Vega", mugshot: "" },
-  "Z1007": { id: "Z1007", name: "Camila", surname: "Navarro", mugshot: "" },
-  "Z1008": { id: "Z1008", name: "Joaquín", surname: "Mora", mugshot: "https://randomuser.me/api/portraits/men/29.jpg" },
-  "Z1009": { id: "Z1009", name: "Valentina", surname: "Carrasco", mugshot: "" },
-  "Z1010": { id: "Z1010", name: "Diego", surname: "Paredes", mugshot: "https://randomuser.me/api/portraits/men/77.jpg" },
-  "Z1011": { id: "Z1011", name: "Isidora", surname: "Tapia", mugshot: "" },
-  "Z1012": { id: "Z1012", name: "Benjamín", surname: "Ramírez", mugshot: "" },
-  "Z1013": { id: "Z1013", name: "Fernanda", surname: "Araya", mugshot: "https://randomuser.me/api/portraits/women/38.jpg" },
-  "Z1014": { id: "Z1014", name: "Matías", surname: "Ortiz", mugshot: "" },
-  "Z1015": { id: "Z1015", name: "Catalina", surname: "Fuentes", mugshot: "https://randomuser.me/api/portraits/women/51.jpg" },
-  "Z1016": { id: "Z1016", name: "Ignacio", surname: "Salazar", mugshot: "" },
-  "Z1017": { id: "Z1017", name: "Daniela", surname: "Cáceres", mugshot: "" },
-  "Z1018": { id: "Z1018", name: "Vicente", surname: "Reyes", mugshot: "" },
-  "Z1019": { id: "Z1019", name: "Trinidad", surname: "Espinoza", mugshot: "" },
-  "Z1020": { id: "Z1020", name: "Sebastián", surname: "Morales", mugshot: "https://randomuser.me/api/portraits/men/22.jpg" }
-};
+import { citizens } from "../../data/citizens";
 ---
 
 <Layout title="Home">
@@ -41,14 +20,15 @@ const ciudadanos = {
         </div>
     </div>
     <div class="body-content">
-        {Object.values(ciudadanos).map((ciudadano) => (
+        {Object.values(citizens).map((citizen) => (
             <CitizenCard 
-                id={ciudadano.id}
-                name={ciudadano.name}
-                surname={ciudadano.surname}
-                mugshot={ciudadano.mugshot}
+                id={citizen.id}
+                name={citizen.name}
+                surname={citizen.surname}
+                mugshot={citizen.mugshot}
             />
         ))}
+
 
     </div>
 </Layout>

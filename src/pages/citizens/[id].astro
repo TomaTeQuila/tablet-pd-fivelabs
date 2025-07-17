@@ -1,12 +1,17 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import CitizenCard from "../../components/CitizenCard.astro";
-import { ciudadanos } from "../../data/citizens";
+import { citizens } from "../../data/citizens";
 
 export function getStaticPaths() {
-  return Object.values(ciudadanos).map((c) => ({
+  return Object.values(citizens).map((c) => ({
     params: { id: c.id },
-    props: c
+    props: {
+      id: c.id,
+      name: c.name,
+      surname: c.surname,
+      mugshot: c.mugshot
+    }
   }));
 }
 
@@ -15,7 +20,7 @@ const { id, name, surname, mugshot } = Astro.props;
 
 <Layout title={`Ciudadano ${name} ${surname}`}>
   <div class="body-content">
-    <CitizenCard 
+    <CitizenCard
       id={id}
       name={name}
       surname={surname}
@@ -23,3 +28,4 @@ const { id, name, surname, mugshot } = Astro.props;
     />
   </div>
 </Layout>
+

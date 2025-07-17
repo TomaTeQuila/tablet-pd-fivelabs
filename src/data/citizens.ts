@@ -1,4 +1,4 @@
-export const ciudadanos = {
+export const citizens = {
   "Z1001": { id: "Z1001", name: "Laura", surname: "González", mugshot: "https://randomuser.me/api/portraits/women/44.jpg" },
   "Z1002": { id: "Z1002", name: "Carlos", surname: "Muñoz", mugshot: "https://randomuser.me/api/portraits/men/46.jpg" },
   "Z1003": { id: "W3N0P4LÑ4T0", name: "Chupa", surname: "Pico", mugshot: "https://media.licdn.com/dms/image/v2/D4E03AQG40P3EGK4BTQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1732139178520?e=1758153600&v=beta&t=6r701DZ_owZGvdOqzY-S3TQIGi6xdcAaQjXF8zJdGNM" },
