@@ -3,7 +3,6 @@ import Layout from "../../layouts/Layout.astro";
 import CitizenCard from "../../components/CitizenCard.astro";
 import { ciudadanos } from "../../data/citizens";
 
-// exportar rutas dinámicas
 export function getStaticPaths() {
   return Object.values(ciudadanos).map((c) => ({
     params: { id: c.id },
@@ -11,7 +10,6 @@ export function getStaticPaths() {
   }));
 }
 
-// obtener props de Astro
 const { id, name, surname, mugshot } = Astro.props;
 ---
 
