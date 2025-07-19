@@ -1,0 +1,72 @@
+---
+import CrimeCard from "../components/CrimeCard.astro";
+
+export interface Props {
+    title: string;
+}
+
+const { title } = Astro.props; 
+---
+
+<div class="card">
+    <div class="card-header">
+        <h1>{title}</h1>
+        {title === "Prontuario" && (
+            <a href="#">Agregar delito</a>
+        )}
+    </div>
+    <div class="card-body">
+        <slot />
+    </div>
+</div>
+
+<style>
+    div.card {
+        background: var(--bg-secondary);
+        border-radius: 5px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+        border: 1px solid var(--border-color);
+        max-height: fit-content;
+        max-height: 400px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 1rem;
+        padding-left: 1rem;
+        overflow-y: auto;
+        height: 300px;
+        max-height: 300px; 
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        padding: 0 0 0 16px;
+    }
+
+    a {
+        text-decoration: none;
+        color: white;
+        background-color:rgb(45, 63, 50);
+        border-radius: 5px;
+        padding: 8px 12px;
+        transition: 0.8s;
+        font-weight: 600;
+    }
+
+    a:hover {
+        background-color: var(--accent-green);
+    }
+</style>

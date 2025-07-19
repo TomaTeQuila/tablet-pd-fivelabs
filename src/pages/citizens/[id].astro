@@ -1,31 +1,171 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import CitizenCard from "../../components/CitizenCard.astro";
+import defaultPic from "../../assets/default-pic.jpg";
+import { crimes, type Crime } from '../../data/crimes';
 import { citizens } from "../../data/citizens";
+import { vehicles, type Vehicle } from '../../data/vehicles';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
   return Object.values(citizens).map((c) => ({
     params: { id: c.id },
     props: {
       id: c.id,
       name: c.name,
       surname: c.surname,
-      mugshot: c.mugshot
-    }
+      mugshot: c.mugshot,
+      job: c.job,
+    },
   }));
 }
 
-const { id, name, surname, mugshot } = Astro.props;
+const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
+const rawMugshot = mugshotProp || defaultPic;
+const mugshot = typeof rawMugshot === 'string' ? rawMugshot : rawMugshot.src;
+const citizenCrimes: Crime[] = (crimes as Record<string, Crime[]>)[id] || [];
+const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] || []; 
+
+import Layout from "../../layouts/Layout.astro";
+import CitizenDataCard from "../../components/CitizenDataCard.astro";
+import CrimeCard from "../../components/CrimeCard.astro";
+import VehicleCard from "../../components/VehicleCard.astro";
+import StatsCard from "../../components/StatsCard.astro"
+
+
 ---
 
 <Layout title={`Ciudadano ${name} ${surname}`}>
   <div class="body-content">
-    <CitizenCard
-      id={id}
-      name={name}
-      surname={surname}
-      mugshot={mugshot}
-    />
+    <section id="citizen-personal-data" class="citizen-personal-data">
+      <img src={mugshot} alt={`Foto de ${name} ${surname}`} />
+      <div class="personal-data">
+        <div class="text-personal-data">
+          <p>{id}</p>
+          <h1>{name} {surname}</h1>
+          <div class="job-data">
+            <span class="material-symbols-rounded">business_center</span>
+            <h2>{job}</h2>
+          </div>
+        </div>
+        <div class="personal-stats">
+          <StatsCard title="Delitos" desc="Total delitos" icon="gavel" specValue="10" />
+          <StatsCard title="Vehiculos" desc="Total vehiculos" icon="directions_car" specValue="2" />
+          <StatsCard title="Multas" desc="Monto y total de multas sin pagar" icon="attach_money" specValue="2" monto="525800$" />
+          <StatsCard title="Propiedades" desc="Total propiedades" icon="apartment" specValue="2"/>
+        </div>
+      </div>
+    </section>
+    <section id="citizen-relations-data" class="citizen-relations-data">
+      <div class="cars-data">
+        <CitizenDataCard title="Vehículos">
+          {citizenVehicles.map((vehicle, index) => (
+            <VehicleCard
+              index={index + 1}
+              model={vehicle.model}
+              type={vehicle.type}
+              plate={vehicle.plate}
+              color={vehicle.color}
+              image=''
+              notes={vehicle.notes}
+            />
+          ))}
+        </CitizenDataCard>
+      </div>
+
+      <div class="property-data">
+        <CitizenDataCard title="Propiedades">
+        </CitizenDataCard>
+      </div>
+
+      <div class="prontuario-data">
+        <CitizenDataCard title="Prontuario">
+          {citizenCrimes.map((crime: Crime, index: number) => (
+            <CrimeCard
+              index={index + 1}
+              reason={crime.reason}
+              date={crime.date}
+              hour={crime.hour}
+              details={crime.details}
+              conviction={crime.conviction}
+              fine={crime.fine}
+            />
+          ))}
+        </CitizenDataCard>
+      </div>
+      
+    </section>
   </div>
 </Layout>
 
+<style>
+  .citizen-relations-data {
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  img {
+    max-width: 300px;
+    width: 100%;
+    box-shadow: 0px 0px 2px rgb(122, 118, 173);
+    border: 3px solid var(--border-color);
+  }
+
+  .body-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    height: 100%;
+  }
+
+  .citizen-personal-data {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .personal-data {
+    height: 100%;
+    margin-left: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+.text-personal-data p {
+    font-size: 1.2rem;
+    color: var(--text-tertiary);
+    font-family: 'Funnel Display', sans-serif;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .text-personal-data h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    font-family: 'Funnel Display', sans-serif;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  .text-personal-data h2 {
+    font-family: 'Funnel Display', sans-serif;
+    font-weight: 100;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .job-data {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+  .personal-stats {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: 150px 150px 300px 200px;
+    gap: 5px;
+  }
+</style>

@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-import OfficerStatsCard from "../components/OfficerStatsCard.astro";
+import StatsCard from "../components/StatsCard.astro";
 
 const sourceData = {
     name: "Pepito",
@@ -31,13 +31,13 @@ const sourceData = {
         </div>
     </div>
     <div class="body-content">
-        <OfficerStatsCard title="Total multas", 
+        <StatsCard title="Total multas", 
         desc="Total de multas impuestas y cobradas por el oficial"
         icon="payments" specValue="10" monto="50000$"/>
-        <OfficerStatsCard title="Total horas de servicio", 
+        <StatsCard title="Total horas de servicio", 
         desc="Total de horas ejercidas en servicio por el oficial"
         icon="av_timer" specValue={String(sourceData.serviceHours)}/>
-        <OfficerStatsCard title="Rango", 
+        <StatsCard title="Rango", 
         desc="Rango actual del oficial"
         icon="social_leaderboard" specValue={sourceData.rank}/>
     </div>

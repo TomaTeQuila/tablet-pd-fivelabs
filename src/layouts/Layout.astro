@@ -40,6 +40,7 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Funnel Display', sans-serif;
   }
 
   body {
@@ -71,7 +72,7 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     --text-active: #b5d5f6;
     --accent-blue: #4299e1;
 	  --accent-darker-blue: #2e3f5f;
-    --accent-green: #48bb78;
+    --accent-green: #28583c;
     --accent-red: #f56565;
     --accent-yellow: #ed8936;
     --accent-purple: #9f7aea;
@@ -101,4 +102,23 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     width: 100%;
   }
   
+  /* Scrollbar para navegar por los weones */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.073);
+        border-radius: 999px;
+        transition: background-color 0.3s;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.275);
+    }
+
 </style>

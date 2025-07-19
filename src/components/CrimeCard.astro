@@ -1,0 +1,220 @@
+---
+const uniqueId = Math.random().toString(36).substr(2, 9);
+
+export interface Props {
+    index: number;
+    reason: string;
+    date: string;
+    hour: string;
+    details: string;
+    conviction: string;
+    fine: string;
+}
+
+const { index, reason, date, hour, details, conviction, fine } = Astro.props;
+---
+<div class="card">
+  <div class="card-header">
+    <p>{index}: {reason}</p>
+    <p>{date}</p>
+  </div>
+  <button id={`openModal-${uniqueId}`} class="open-modal-btn">
+    Ver más
+  </button>
+</div>
+
+<div id={`modal-${uniqueId}`} class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Detalles del caso</h2>
+      <span class="close" id={`closeModal-${uniqueId}`}>&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="detail-item">
+        <strong>Fecha:</strong> {date}
+      </div>
+      <div class="detail-item">
+        <strong>Hora:</strong> {hour}
+      </div>
+      <div class="detail-item">
+        <strong>Detalles:</strong> {details}
+      </div>
+      <div class="detail-item">
+        <strong>Multa:</strong> {fine}
+      </div>
+      <div class="detail-item">
+        <strong>Condena:</strong> {conviction}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    /* Card */
+    .card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-secondary);
+        border-radius: 5px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+        border: 1px solid #333;
+        max-width: 300px;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .card-header p {
+        font-size: 1rem;
+        color: #ffffff;
+        margin: 0;
+    }
+
+    .card-desc {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #333;
+    }
+
+    .card-desc p {
+        margin: 4px 0;
+        color: #cccccc;
+    }
+
+    button {
+        background-color: var(--accent-darker-blue);
+        margin-top: auto;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: var(--border-light);
+    }
+
+        /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background: linear-gradient(135deg, #1a1f2c, #2a2f3c);
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid #333;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.5rem;
+    }
+
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .close:hover {
+        color: #fff;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .detail-item {
+        margin-bottom: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #333;
+        color: #cccccc;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-item strong {
+        color: #ffffff;
+        margin-right: 8px;
+    }     
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', event => {
+      if (event.target.classList.contains('open-modal-btn')) {
+        const [ , id ] = event.target.id.split('-');
+        const modal = document.getElementById(`modal-${id}`);
+        if (modal) modal.style.display = 'block';
+      }
+      if (event.target.classList.contains('close')) {
+        const [ , id ] = event.target.id.split('-');
+        const modal = document.getElementById(`modal-${id}`);
+        if (modal) modal.style.display = 'none';
+      }
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal[style*="block"]').forEach(m => {
+          m.style.display = 'none';
+        });
+      }
+    });
+  });
+</script>
