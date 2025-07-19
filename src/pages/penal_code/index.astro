@@ -2,6 +2,8 @@
 import Layout from "../../layouts/Layout.astro" 
 import PenalCodeItems from "../../components/PenalCodeItems.astro"
 import { penal_codes, type PenalCode } from '../../data/penalcode';
+
+const {id, name, description, fine, prison, category } = Astro.props;
 ---
 
 <Layout title="Multas y condenas">
@@ -25,8 +27,10 @@ import { penal_codes, type PenalCode } from '../../data/penalcode';
             <PenalCodeItems 
                 id={penal_code.id}
                 name={penal_code.name}
-                surname={penal_code.surname}
-                mugshot={penal_code.mugshot}
+                description={penal_code.description}
+                fine={penal_code.fine}
+                prison={penal_code.prison}
+                category={penal_code.category}
             />
         ))}
         </div>
@@ -85,13 +89,13 @@ import { penal_codes, type PenalCode } from '../../data/penalcode';
 
     .body-penal-code-section {
         margin: 1.25rem;
+        overflow-y: auto;
+        height: 100%;
     }
 
     .body {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
-        overflow-y: auto;
-        height: 100%;
     }
 </style>

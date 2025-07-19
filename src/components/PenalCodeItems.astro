@@ -1,15 +1,30 @@
 ---
+export interface Props {
+  id: number;
+  name: string;
+  description?: string;
+  fine: number;
+  prison?: number;
+  category?: string;
+}
 
+const { id, name, description, fine, prison, category } = Astro.props;
 ---
 
 <div class="card">
     <div class="card-header">
-        <h1>Nombre multa</h1>
-        <p>Descripcion</p>
+        <h1>{name}</h1>
+        <p>{description}</p>
     </div>
     <div class="card-desc">
-        <p>Multa</p>
-        <p>Condena</p>
+        <div class="card-desc-title">
+            <h2>Multa</h2>
+            <h2>Condena</h2>
+        </div>
+        <div class="card-desc-value">
+            <p>{String(fine)}</p>
+            <p>{String(prison)}</p>
+        </div>
     </div>
 
 </div>
@@ -25,6 +40,8 @@
         background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
         border: 1px solid #333;
         max-width: 100%;
+        max-height: 500px;
+        height: 100%;
         transition: all 0.3s ease;
         margin-top: 10px;
     }
@@ -42,18 +59,36 @@
 
     .card-header p {
         font-size: 1rem;
-        color: #ffffff;
+        color: #5c5c5c;
         margin: 0;
+        font-weight: 600;
     }
 
     .card-desc {
+        display: flex;
+        flex-direction: column;
         margin-top: 8px;
         padding-top: 8px;
         border-top: 1px solid #333;
+        margin-top: auto;
     }
-
+    .card-desc-title {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .card-desc-value {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
     .card-desc p {
         margin: 4px 0;
-        color: #cccccc;
+        color: #9c9c9c;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        font-weight: 500;
     }
 </style>
