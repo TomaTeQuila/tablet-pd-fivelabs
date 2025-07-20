@@ -1,19 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro" 
-import PenalCodeItems from "../../components/PenalCodeItems.astro"
-import CategoriesSideBar from "../../components/CategoriesSideBar.astro";
+import PenalCodeItems from "../../components/cards/PenalCodeItems.astro"
+import CategoriesSideBar from "../../components/sidebars/CategoriesSideBar.astro";
 import { penal_codes } from '../../data/penalcode';
-import PageHeader from "../../components/PageHeader.astro";
-import GridContainer from "../../components/GridContainer.astro";
+import PageHeader from "../../components/general/PageHeader.astro";
+import GridContainer from "../../components/general/GridContainer.astro";
 ---
 
 <Layout title="Multas y condenas">
     <PageHeader 
-        icon="group_search"
-        title="Lista de ciudadanos"
-        description="Lista de todos los ciudadanos registrados"
+        icon="gavel"
+        title="Código Penal"
+        description="Código penal. Todas los delitos junto a sus condenas"
         showSearch={true}
-        searchPlaceholder="🔍 Buscar ciudadano"
+        searchPlaceholder="🔍 Buscar sentencia"
     />
     <GridContainer columns={2}>
         {penal_codes.map((penal_code) => (

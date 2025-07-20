@@ -3,7 +3,7 @@ export interface Props {
   selectedCategory?: string;
 }
 
-import { penal_codes } from '../data/penalcode';
+import { penal_codes } from '../../data/penalcode';
 
 // Obtener categorías únicas directamente de los datos, asegurándose de incluir "Todos"
 const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter((cat): cat is string => typeof cat === 'string' && !!cat))];
