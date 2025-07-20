@@ -1,5 +1,11 @@
 ---
+import Layout from "../../layouts/Layout.astro";
+import CitizenDataCard from "../../components/CitizenDataCard.astro";
+import CrimeCard from "../../components/CrimeCard.astro";
+import VehicleCard from "../../components/VehicleCard.astro";
+import StatsCard from "../../components/StatsCard.astro"
 import defaultPic from "../../assets/default-pic.jpg";
+
 import { crimes, type Crime } from '../../data/crimes';
 import { citizens } from "../../data/citizens";
 import { vehicles, type Vehicle } from '../../data/vehicles';
@@ -22,14 +28,6 @@ const rawMugshot = mugshotProp || defaultPic;
 const mugshot = typeof rawMugshot === 'string' ? rawMugshot : rawMugshot.src;
 const citizenCrimes: Crime[] = (crimes as Record<string, Crime[]>)[id] || [];
 const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] || []; 
-
-import Layout from "../../layouts/Layout.astro";
-import CitizenDataCard from "../../components/CitizenDataCard.astro";
-import CrimeCard from "../../components/CrimeCard.astro";
-import VehicleCard from "../../components/VehicleCard.astro";
-import StatsCard from "../../components/StatsCard.astro"
-
-
 ---
 
 <Layout title={`Ciudadano ${name} ${surname}`}>
@@ -76,7 +74,7 @@ import StatsCard from "../../components/StatsCard.astro"
       </div>
 
       <div class="prontuario-data">
-        <CitizenDataCard title="Prontuario">
+        <CitizenDataCard title="Prontuario" id={id}>
           {citizenCrimes.map((crime: Crime, index: number) => (
             <CrimeCard
               index={index + 1}

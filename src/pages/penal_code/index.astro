@@ -1,9 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro" 
 import PenalCodeItems from "../../components/PenalCodeItems.astro"
-import { penal_codes, type PenalCode } from '../../data/penalcode';
-
-const {id, name, description, fine, prison, category } = Astro.props;
+import CategoriesSideBar from "../../components/CategoriesSideBar.astro";
+import { penal_codes } from '../../data/penalcode';
 ---
 
 <Layout title="Multas y condenas">

@@ -7,9 +7,9 @@ import { citizens } from "../../data/citizens";
 ---
 
 <Layout title="Home">
-    <div class="body-header">
-        <div class="body-header-items">
-            <div class="body-header-items-top">
+    <div class="header">
+        <div class="header-items">
+            <div class="header-items-top">
                 <span class="material-symbols-rounded">group_search</span>
                 <h1>Lista de ciudadanos</h1>
             </div>
@@ -34,7 +34,7 @@ import { citizens } from "../../data/citizens";
 </Layout>
 
 <style>
-    .body-header {
+    .header {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -42,13 +42,13 @@ import { citizens } from "../../data/citizens";
         margin: 1.25rem;
     }
 
-    .body-header-items-top {
+    .header-items-top {
         display: flex;
         flex-direction: row;
         align-items: center;
     }
 
-    .body-header-items p {
+    .header-items p {
         display: flex;
         font-size: 1rem;
         color: var(--text-tertiary);

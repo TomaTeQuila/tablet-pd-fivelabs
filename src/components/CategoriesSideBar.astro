@@ -1,0 +1,234 @@
+---
+export interface Props {
+  categories?: string[];
+  selectedCategory?: string;
+}
+
+const { 
+  categories = [
+    "Todos",
+    "Violencia",
+    "Drogas", 
+    "Robo",
+    "Tráfico",
+    "Vandalismo",
+    "Fraude",
+    "Armas",
+    "Otros"
+  ],
+  selectedCategory = "Todos"
+} = Astro.props;
+---
+
+<div class="categories-sidebar">
+  <div class="categories-header">
+    <span class="material-symbols-rounded">category</span>
+    <h3>Categorías</h3>
+  </div>
+  
+  <div class="categories-list">
+    {categories.map((category) => (
+      <button 
+        class={`category-item ${category === selectedCategory ? 'active' : ''}`}
+        data-category={category}
+      >
+        <span class="category-name">{category}</span>
+        <span class="category-count">
+          {category === "Todos" ? "25" : Math.floor(Math.random() * 8) + 1}
+        </span>
+      </button>
+    ))}
+  </div>
+  
+  <div class="categories-footer">
+    <button class="clear-filter">
+      <span class="material-symbols-rounded">clear_all</span>
+      Limpiar filtros
+    </button>
+  </div>
+</div>
+
+<style>
+  .categories-sidebar {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    width: 220px;
+    height: fit-content;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .categories-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .categories-header span {
+    color: var(--accent-blue);
+    font-size: 1.2rem;
+  }
+
+  .categories-header h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .category-item:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+    color: var(--text-primary);
+  }
+
+  .category-item.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+  }
+
+  .category-item.active .category-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .category-name {
+    font-weight: 400;
+  }
+
+  .category-count {
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .categories-footer {
+    padding-top: 8px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .clear-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .clear-filter:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-light);
+    color: var(--text-primary);
+  }
+
+  .clear-filter span {
+    font-size: 1rem;
+  }
+
+  /* Scrollbar para la lista de categorías */
+  .categories-list::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .categories-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 2px;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb:hover {
+    background-color: var(--border-light);
+  }
+</style>
+
+<script>
+  // Agregar funcionalidad de filtrado
+  document.addEventListener('DOMContentLoaded', () => {
+    const categoryItems = document.querySelectorAll('.category-item');
+    const clearButton = document.querySelector('.clear-filter');
+
+    categoryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        // Remover active de todos los items
+        categoryItems.forEach(i => i.classList.remove('active'));
+        // Agregar active al item clickeado
+        item.classList.add('active');
+        
+        // Obtener la categoría seleccionada
+        const selectedCategory = item.getAttribute('data-category');
+        
+        // Aquí puedes agregar la lógica para filtrar los delitos
+        console.log('Categoría seleccionada:', selectedCategory);
+        
+        // Disparar evento personalizado para comunicar el filtro
+        const filterEvent = new CustomEvent('categoryFilter', {
+          detail: { category: selectedCategory }
+        });
+        document.dispatchEvent(filterEvent);
+      });
+    });
+
+    // Limpiar filtros
+    if (clearButton) {
+      clearButton.addEventListener('click', () => {
+        categoryItems.forEach(i => i.classList.remove('active'));
+        // Activar "Todos" por defecto
+        const todosItem = document.querySelector('[data-category="Todos"]');
+        if (todosItem) {
+          todosItem.classList.add('active');
+        }
+        
+        // Disparar evento para mostrar todos
+        const clearEvent = new CustomEvent('categoryFilter', {
+          detail: { category: 'Todos' }
+        });
+        document.dispatchEvent(clearEvent);
+      });
+    }
+  });
+</script>

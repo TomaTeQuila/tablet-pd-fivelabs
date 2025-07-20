@@ -1,0 +1,195 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import StatsCard from "../../../components/StatsCard.astro";
+import CategoriesSideBar from "../../../components/CategoriesSideBar.astro";
+import PenalCodeItems from "../../../components/PenalCodeItems.astro"
+
+import { citizens } from "../../../data/citizens";
+import { penal_codes } from '../../../data/penalcode';
+
+export async function getStaticPaths() {
+  return Object.values(citizens).map((c) => ({
+    params: { id: c.id.toString() },
+    props: {
+      id: c.id,
+      name: c.name,
+      surname: c.surname,
+      mugshot: c.mugshot,
+      job: c.job,
+    },
+  }));
+}
+
+var totalMulta = 50000
+var totalCondena = 180
+var totalCrimenes = 5
+const { id, name, surname, mugshot, job } = Astro.props;
+---
+
+<Layout title="Add Crime">
+    <div class="container">
+        <section class="header-penal-code-section">
+            <div class="header">
+                <div class="header-items">
+                    <div class="header-items-top">
+                        <span class="material-symbols-rounded">add_notes</span>
+                        <h1>Aplicar sentencia</h1>
+                    </div>
+                    <p>Selecciona los crimenes cometidos por el ciudadano, y aplica la sentencia total</p>
+                </div>
+            </div>
+        </section>
+        <section class="offense-resume">
+            <div class="offense-resume-card">
+                <StatsCard 
+                    title="Monto total"
+                    icon="attach_money"
+                    desc="Total de monto a pagar en base a multas"
+                    specValue=`${totalMulta} $`
+                />
+                <StatsCard 
+                    title="Condena"
+                    icon="rule"
+                    desc="Total de condena que deberá cumplir el ciudadano"
+                    specValue=`${totalCondena}`
+                />
+                <StatsCard 
+                    title="Total crimenes imputado"
+                    icon="files"
+                    desc="Total de condena que deberá cumplir el ciudadano"
+                    specValue=`${totalCrimenes}`
+                />
+            </div>
+        </section>
+        <section class="penal-codes">
+            <div class="penal-codes-container">
+                <div class="category-sidebar">
+                    <CategoriesSideBar />
+                </div>
+                <div class="penal-codes-card">
+                    <div class="search">
+                        <input type="text" placeholder="🔍 Buscar" class="search-input"> 
+                    </div>
+                    <div class="penal-codes-grid">
+                        {Object.values(penal_codes).map((penal_code) => (
+                            <PenalCodeItems 
+                                id={penal_code.id}
+                                name={penal_code.name}
+                                description={penal_code.description}
+                                fine={penal_code.fine}
+                                prison={penal_code.prison}
+                                category={penal_code.category}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+    </div>
+</Layout>
+
+<style>
+   .container {
+       display: flex;
+       flex-direction: column;
+       padding: 16px;
+       height: 100vh;
+   }
+
+   .header-penal-code-section {
+       display: flex;
+       flex-direction: row;
+       justify-content: start;
+       align-items: center;
+       width: 100%;
+   }
+
+   .header {
+       display: flex;
+       flex-direction: row;
+       align-items: center;
+       justify-content: space-between;
+       width: 100%;
+   }
+
+   .header-items-top {
+       display: flex;
+       flex-direction: row;
+       align-items: center;
+       gap: 0.40rem;
+   }
+
+   .header-items-top h1 {
+       font-size: 1.25rem;
+       color: var(--text-primary);
+       font-family: 'Funnel Display', sans-serif;
+       font-weight: 400;
+   }
+
+   .header-items p {
+       display: flex;
+       font-size: 1rem;
+       color: var(--text-tertiary);
+   }
+   
+   section.offense-resume {
+       margin: 25px 0px;
+   }
+   
+   .offense-resume-card {
+       display: grid;
+       grid-template-columns: 1fr 1fr 1fr;
+       gap: 20px;
+   }
+   
+   section.penal-codes {
+       flex: 1;
+       min-height: 0;
+   }
+   
+   .penal-codes-container {
+       display: flex;
+       flex-direction: row;
+       gap: 8px;
+       height: 100%;
+   }
+   
+   .search {
+       display: flex;
+       width: 100%;
+       flex-direction: row;
+   }
+   
+   .search-input {
+       background-color: transparent;
+       border: 2px solid var(--border-color);
+       border-radius: 5px;
+       padding: 10px 10px;
+       font-size: 1rem;
+       font-family: 'Funnel Display', sans-serif;
+       color: white;
+       width: 20rem;
+       margin-left: auto;
+   }
+
+   .penal-codes-card {
+       display: flex;
+       flex-direction: column;
+       height: 100%;
+       width: 100%;
+       background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+       padding: 8px;
+       border: 1px solid var(--border-color);
+       border-radius: 5px;
+   }
+
+   .penal-codes-grid {
+       display: grid;
+       grid-template-columns: 1fr;
+       gap: 8px;
+       overflow-y: auto;
+       flex: 1;
+       min-height: 0;
+   }
+</style>

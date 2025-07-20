@@ -8,13 +8,32 @@ export interface Props {
   category?: string;
 }
 
+import { sourceOfficerData } from "../data/officer";
+const { rank } = sourceOfficerData;
+const highRanks = ["Capitan", "Sargento", "Capitan", "Director"];
+
+const { pathname } = Astro.url;
 const { id, name, description, fine, prison, category } = Astro.props;
 ---
 
 <div class="card">
     <div class="card-header">
-        <h1>{name}</h1>
-        <p>{description}</p>
+        <div class="card-header-name">
+            <h1>{name}</h1>
+            <p>{description}</p>
+        </div>
+        {
+            (highRanks.includes(rank) && pathname === '/penal_code') && (
+
+            <div class="card-header-options">
+                <button>
+                    <span class="material-symbols-rounded">
+                        more_vert
+                    </span>
+                </button>
+            </div>
+            )
+        }
     </div>
     <div class="card-desc">
         <div class="card-desc-title">
@@ -53,8 +72,8 @@ const { id, name, description, fine, prison, category } = Astro.props;
 
     .card-header {
         display: flex;
-        flex-direction: column;
-        gap: 8px;
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .card-header p {
@@ -90,5 +109,18 @@ const { id, name, description, fine, prison, category } = Astro.props;
     h2 {
         font-size: 1.25rem;
         font-weight: 500;
+    }
+
+    button {
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: none;
+        border: none;
+        color: white;
     }
 </style>
