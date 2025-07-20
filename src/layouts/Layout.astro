@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 export interface Props {
   title: string;
 }
@@ -18,6 +19,7 @@ import TabletNavbar from '../components/general/TabletNavbar.astro';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />    
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
     <div class="viewport-container">

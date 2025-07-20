@@ -1,26 +1,23 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import StatsCard from "../components/cards/StatsCard.astro";
+import PageHeader from "../components/general/PageHeader.astro";
+import GridContainer from "../components/general/GridContainer.astro";
+
 import { sourceOfficerData } from "../data/officer"
+
+const prefix = sourceOfficerData.gender == 'm' ? 'Sr.' : "Sra."
+const officerName = `${prefix} ${sourceOfficerData.name.toUpperCase()} ${sourceOfficerData.surname.toUpperCase()}` 
 ---
 
 <Layout title="Home">
-    <div class="body-header">
-        <div class="body-header-items">
-            <div class="body-header-items-top">
-                <span class="police-icon material-symbols-rounded">local_police</span>
-                <h1>
-                    {sourceOfficerData.gender == 'm' ? 'Sr.' : "Sra."} 
-                    <span class="header-h1-name">
-                        {sourceOfficerData.name} 
-                        {sourceOfficerData.surname}
-                    </span>
-                </h1>
-            </div>
-
-            <p>Sistema centralizado de la policia nacional</p>
-        </div>
-    </div>
+    <PageHeader 
+        icon="local_police"
+        title={officerName}
+        description="Sistema centralizado de la policia nacional"
+        showSearch={false}
+        searchPlaceholder=""
+    />
     <div class="body-content">
         <StatsCard title="Total multas", 
         desc="Total de multas impuestas y cobradas por el oficial"
@@ -31,7 +28,7 @@ import { sourceOfficerData } from "../data/officer"
         <StatsCard title="Rango", 
         desc="Rango actual del oficial"
         icon="social_leaderboard" specValue={sourceOfficerData.rank}/>
-    </div>
+    </div>   
 </Layout>
 
 <style>
@@ -40,7 +37,6 @@ import { sourceOfficerData } from "../data/officer"
         flex-direction: column;
         align-items: start;
         justify-content: center;
-        margin: 1.25rem;
     }
 
     .body-header-items-top {
@@ -58,7 +54,6 @@ import { sourceOfficerData } from "../data/officer"
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 1rem;
-        padding: 1rem;
     }
 
     h1 {

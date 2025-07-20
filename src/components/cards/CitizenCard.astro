@@ -1,5 +1,5 @@
 ---
-import defaultPic from "../assets/default-pic.jpg";
+import defaultPic from "../../assets/default-pic.jpg";
 export interface Props {
     id: string;
   name: string;
@@ -16,7 +16,7 @@ const profilePic = mugshot || defaultPic.src;
 <div class="card">
     <a href={`/citizens/${id}`}>
     <div class="citizen-img">
-            <img src={profilePic} alt="">
+            <img src={profilePic} alt={name} transition:name={`img-${id}`}>
         </div>
         <div class="card-footer">
             <div class="citizen-data">

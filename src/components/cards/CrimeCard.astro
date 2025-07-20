@@ -15,8 +15,8 @@ const { index, reason, date, hour, details, conviction, fine } = Astro.props;
 ---
 <div class="card">
   <div class="card-header">
-    <p>{index}: {reason}</p>
-    <p>{date}</p>
+    <p>{reason}</p>
+    <p>Fecha: {date}</p>
   </div>
   <button id={`openModal-${uniqueId}`} class="open-modal-btn">
     Ver más
@@ -50,7 +50,6 @@ const { index, reason, date, hour, details, conviction, fine } = Astro.props;
 </div>
 
 <style>
-    /* Card */
     .card {
         display: flex;
         flex-direction: column;
@@ -109,7 +108,6 @@ const { index, reason, date, hour, details, conviction, fine } = Astro.props;
         background-color: var(--border-light);
     }
 
-        /* Modal */
     .modal {
         display: none;
         position: fixed;
@@ -119,7 +117,7 @@ const { index, reason, date, hour, details, conviction, fine } = Astro.props;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(1px);
     }
 
     .modal-content {

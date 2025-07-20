@@ -33,7 +33,7 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
 <Layout title={`Ciudadano ${name} ${surname}`}>
   <div class="body-content">
     <section id="citizen-personal-data" class="citizen-personal-data">
-      <img src={mugshot} alt={`Foto de ${name} ${surname}`} />
+      <img src={mugshot} alt={`Foto de ${name} ${surname}`} transition:name={`img-${id}`} />
       <div class="personal-data">
         <div class="text-personal-data">
           <p>{id}</p>
@@ -104,7 +104,7 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
   }
 
   img {
-    max-width: 300px;
+    max-width: 220px;
     width: 100%;
     box-shadow: 0px 0px 2px rgb(122, 118, 173);
     border: 3px solid var(--border-color);
@@ -163,7 +163,7 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
   .personal-stats {
     margin-top: auto;
     display: grid;
-    grid-template-columns: 150px 150px 300px 200px;
+    grid-template-columns: 1fr 1fr 2fr auto;
     gap: 5px;
   }
 </style>

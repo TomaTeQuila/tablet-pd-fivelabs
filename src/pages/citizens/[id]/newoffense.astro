@@ -48,7 +48,7 @@ var totalCrimenes = 0
                     title="Monto total"
                     icon="attach_money"
                     desc="Total de monto a pagar en base a multas"
-                    specValue=`${totalMulta} $`
+                    specValue={`${totalMulta} $`}
                 />
                 <StatsCard 
                     title="Condena"
@@ -62,6 +62,7 @@ var totalCrimenes = 0
                     desc="Total de condena que deberá cumplir el ciudadano"
                     specValue=`${totalCrimenes}`
                 />
+
             </div>
         </section>
         <section class="penal-codes">
@@ -242,4 +243,42 @@ var totalCrimenes = 0
 </style>
 
 <script>
+  const selectedItems = new Set();
+
+  const updateStats = () => {
+    let totalMulta = 0;
+    let totalCondena = 0;
+
+    selectedItems.forEach((wrapper) => {
+      const el = wrapper as HTMLElement;
+      const fine = parseInt(el.dataset.fine || "0");
+      const prison = parseInt(el.dataset.prison || "0");
+      totalMulta += fine;
+      totalCondena += prison;
+    });
+
+    const cards = document.querySelectorAll(".offense-resume-card .stats-card");
+    if (cards.length < 3) return;
+
+    const multaNode = cards[0].querySelector(".stats-card-spec-value");
+    const condenaNode = cards[1].querySelector(".stats-card-spec-value");
+    const crimenesNode = cards[2].querySelector(".stats-card-spec-value");
+
+    if (multaNode) multaNode.textContent = `${totalMulta} $`;
+    if (condenaNode) condenaNode.textContent = totalCondena.toString();
+    if (crimenesNode) crimenesNode.textContent = selectedItems.size.toString();
+  };
+
+  document.querySelectorAll('.card-wrapper').forEach(wrapper => {
+    wrapper.addEventListener('click', () => {
+      wrapper.classList.toggle('selected');
+      if (wrapper.classList.contains('selected')) {
+        selectedItems.add(wrapper);
+      } else {
+        selectedItems.delete(wrapper);
+      }
+      updateStats();
+    });
+  });
 </script>
+

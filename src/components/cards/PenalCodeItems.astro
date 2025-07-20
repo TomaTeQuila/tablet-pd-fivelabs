@@ -10,43 +10,40 @@ export interface Props {
 
 import { sourceOfficerData } from "../../data/officer";
 const { rank } = sourceOfficerData;
-const highRanks = ["Capitan", "Sargento", "Capitan", "Director"];
+const highRanks = ["Capitan", "Sargento", "Director"];
 
 const { pathname } = Astro.url;
 const { id, name, description, fine, prison, category } = Astro.props;
 ---
 
-<div class="card">
+<div class="card-wrapper" data-id={id} data-fine={fine} data-prison={prison}>
+  <div class="card">
     <div class="card-header">
-        <div class="card-header-name">
-            <h1>{name}</h1>
-            <p>{description}</p>
-        </div>
-        {
-            (highRanks.includes(rank) && pathname === '/penal_code') && (
-
-            <div class="card-header-options">
-                <button>
-                    <span class="material-symbols-rounded">
-                        more_vert
-                    </span>
-                </button>
-            </div>
-            )
-        }
+      <div class="card-header-name">
+        <h1>{name}</h1>
+        <p>{description}</p>
+      </div>
+      {
+        (highRanks.includes(rank) && pathname === '/penal_code') && (
+          <div class="card-header-options">
+            <button>
+              <span class="material-symbols-rounded">more_vert</span>
+            </button>
+          </div>
+        )
+      }
     </div>
     <div class="card-desc">
-        <div class="card-desc-title">
-            <h2>Multa</h2>
-            <h2>Condena</h2>
-        </div>
-        <div class="card-desc-value">
-            <p>{String(fine)}</p>
-            <p>{String(prison)}</p>
-        </div>
+      <div class="card-desc-title">
+        <h2>Multa</h2><h2>Condena</h2>
+      </div>
+      <div class="card-desc-value">
+        <p>{String(fine)}</p><p>{String(prison)}</p>
+      </div>
     </div>
-
+  </div>
 </div>
+
 
 <style>
     .card {
@@ -59,7 +56,7 @@ const { id, name, description, fine, prison, category } = Astro.props;
         background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
         border: 1px solid #333;
         max-width: 100%;
-        max-height: 500px;
+        max-height: 400px;
         height: 100%;
         transition: all 0.3s ease;
         margin-top: 10px;
@@ -68,6 +65,7 @@ const { id, name, description, fine, prison, category } = Astro.props;
     .card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background-image: linear-gradient(to right bottom, #1d2331, #121c33, #232d44, #1a202e, #1b2130);
     }
 
     .card-header {
@@ -91,20 +89,35 @@ const { id, name, description, fine, prison, category } = Astro.props;
         border-top: 1px solid #333;
         margin-top: auto;
     }
-    .card-desc-title {
+
+    .card-desc-title, .card-desc-value {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
     }
-    .card-desc-value {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-    }
+
     .card-desc p {
         margin: 4px 0;
         color: #9c9c9c;
     }
+
+    .checkbox {
+        position: absolute;
+        appearance: none;
+        background-color: transparent;
+        border: none;
+    }
+
+    .card-wrapper {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .card-wrapper.selected .card {
+        border: 2px solid var(--accent-blue);
+        background-image: linear-gradient(to right bottom, #1d2331, #121c33, #232d44, #1a202e, #1b2130);
+    }
+
 
     h2 {
         font-size: 1.25rem;
@@ -119,8 +132,7 @@ const { id, name, description, fine, prison, category } = Astro.props;
     }
 
     button:hover {
-        background: none;
-        border: none;
         color: white;
     }
 </style>
+
