@@ -1,23 +1,27 @@
 ---
 export interface Props {
-  categories?: string[];
   selectedCategory?: string;
 }
 
-const { 
-  categories = [
-    "Todos",
-    "Violencia",
-    "Drogas", 
-    "Robo",
-    "Tráfico",
-    "Vandalismo",
-    "Fraude",
-    "Armas",
-    "Otros"
-  ],
-  selectedCategory = "Todos"
-} = Astro.props;
+import { penal_codes } from '../data/penalcode';
+
+// Obtener categorías únicas directamente de los datos, asegurándose de incluir "Todos"
+const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter(Boolean))];
+const categories = ["Todos", ...uniqueCategories.sort()];
+
+const { selectedCategory = "Todos" } = Astro.props;
+
+// Contar cuántos códigos hay por categoría
+const categoryCounts = categories.reduce((acc, cat) => {
+  if (cat === "Todos") {
+    acc[cat] = penal_codes.length;
+  } else {
+    acc[cat] = penal_codes.filter(code => code.category === cat).length;
+  }
+  return acc;
+}, {} as Record<string, number>)
+
+/* Full hecho por IA esta wea xd */
 ---
 
 <div class="categories-sidebar">
@@ -34,7 +38,7 @@ const {
       >
         <span class="category-name">{category}</span>
         <span class="category-count">
-          {category === "Todos" ? "25" : Math.floor(Math.random() * 8) + 1}
+          {categoryCounts[String(category)] ?? 0}
         </span>
       </button>
     ))}
@@ -187,48 +191,51 @@ const {
 </style>
 
 <script>
-  // Agregar funcionalidad de filtrado
-  document.addEventListener('DOMContentLoaded', () => {
-    const categoryItems = document.querySelectorAll('.category-item');
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.category-item');
     const clearButton = document.querySelector('.clear-filter');
-
-    categoryItems.forEach(item => {
-      item.addEventListener('click', () => {
-        // Remover active de todos los items
-        categoryItems.forEach(i => i.classList.remove('active'));
-        // Agregar active al item clickeado
-        item.classList.add('active');
-        
-        // Obtener la categoría seleccionada
-        const selectedCategory = item.getAttribute('data-category');
-        
-        // Aquí puedes agregar la lógica para filtrar los delitos
-        console.log('Categoría seleccionada:', selectedCategory);
-        
-        // Disparar evento personalizado para comunicar el filtro
-        const filterEvent = new CustomEvent('categoryFilter', {
-          detail: { category: selectedCategory }
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const category = button.getAttribute('data-category');
+            
+            // Remover clase activa de todos los botones
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Agregar clase activa al botón clickeado
+            button.classList.add('active');
+            
+            // Emitir el evento personalizado
+            document.dispatchEvent(new CustomEvent('categoryChange', {
+                detail: { category: category }
+            }));
         });
-        document.dispatchEvent(filterEvent);
-      });
     });
-
-    // Limpiar filtros
+    
+    // Manejar el botón de limpiar filtros
     if (clearButton) {
-      clearButton.addEventListener('click', () => {
-        categoryItems.forEach(i => i.classList.remove('active'));
-        // Activar "Todos" por defecto
-        const todosItem = document.querySelector('[data-category="Todos"]');
-        if (todosItem) {
-          todosItem.classList.add('active');
-        }
-        
-        // Disparar evento para mostrar todos
-        const clearEvent = new CustomEvent('categoryFilter', {
-          detail: { category: 'Todos' }
+        clearButton.addEventListener('click', () => {
+            // Remover clase activa de todos los botones
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Activar el botón "Todos"
+            const todosButton = document.querySelector('[data-category="Todos"]');
+            if (todosButton) {
+                todosButton.classList.add('active');
+            }
+            
+            // Emitir evento para mostrar todos
+            document.dispatchEvent(new CustomEvent('categoryChange', {
+                detail: { category: 'Todos' }
+            }));
+            
+            // También limpiar el input de búsqueda
+            const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
         });
-        document.dispatchEvent(clearEvent);
-      });
     }
-  });
+});
 </script>

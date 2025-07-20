@@ -20,10 +20,12 @@ export async function getStaticPaths() {
   }));
 }
 
-var totalMulta = 50000
-var totalCondena = 180
-var totalCrimenes = 5
-const { id, name, surname, mugshot, job } = Astro.props;
+const categories = [...new Set(penal_codes.map(penal_code => penal_code.category).filter(Boolean))];
+const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
+
+var totalMulta = 0
+var totalCondena = 0
+var totalCrimenes = 0
 ---
 
 <Layout title="Add Crime">
@@ -36,6 +38,7 @@ const { id, name, surname, mugshot, job } = Astro.props;
                         <h1>Aplicar sentencia</h1>
                     </div>
                     <p>Selecciona los crimenes cometidos por el ciudadano, y aplica la sentencia total</p>
+                    <p>{name} {surname} | {id}</p>
                 </div>
             </div>
         </section>
@@ -66,21 +69,32 @@ const { id, name, surname, mugshot, job } = Astro.props;
                 <div class="category-sidebar">
                     <CategoriesSideBar />
                 </div>
+                
+
                 <div class="penal-codes-card">
                     <div class="search">
-                        <input type="text" placeholder="🔍 Buscar" class="search-input"> 
+                        <input 
+                            type="text" 
+                            placeholder="🔍 Buscar por nombre o descripción" 
+                            class="search-input"
+                            id="searchInput"
+                        > 
                     </div>
-                    <div class="penal-codes-grid">
+                    <div class="penal-codes-grid" id="penalCodesGrid">
                         {Object.values(penal_codes).map((penal_code) => (
-                            <PenalCodeItems 
-                                id={penal_code.id}
-                                name={penal_code.name}
-                                description={penal_code.description}
-                                fine={penal_code.fine}
-                                prison={penal_code.prison}
-                                category={penal_code.category}
-                            />
+                                <PenalCodeItems 
+                                    id={penal_code.id}
+                                    name={penal_code.name}
+                                    description={penal_code.description}
+                                    fine={penal_code.fine}
+                                    prison={penal_code.prison}
+                                    category={penal_code.category}
+                                />
                         ))}
+                    </div>
+                    <div class="no-results" id="noResults" style="display: none;">
+                        <span class="material-symbols-rounded">search_off</span>
+                        <p>No se encontraron resultados</p>
                     </div>
                 </div>
             </div>
@@ -159,6 +173,7 @@ const { id, name, surname, mugshot, job } = Astro.props;
        display: flex;
        width: 100%;
        flex-direction: row;
+       margin-bottom: 12px;
    }
    
    .search-input {
@@ -192,4 +207,39 @@ const { id, name, surname, mugshot, job } = Astro.props;
        flex: 1;
        min-height: 0;
    }
+
+   .penal-code-item {
+    transition: all 0.3s ease;
+}
+
+    .penal-code-item.hidden {
+        display: none;
+    }
+
+    .penal-code-item.fade-out {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    .no-results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex: 1;
+        color: var(--text-tertiary);
+    }
+
+    .no-results span {
+        font-size: 3rem;
+        opacity: 0.5;
+    }
+
+    .no-results p {
+        font-size: 1.1rem;
+    }
 </style>
+
+<script>
+</script>

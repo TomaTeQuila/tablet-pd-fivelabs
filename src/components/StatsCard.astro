@@ -34,7 +34,13 @@ const { title, desc, icon, specValue, monto } = Astro.props;
         border: 1px solid var(--border-color);
         display: flex;     
         flex-direction: column;         
-        height: 100%;     
+        height: 100%;    
+        transition: 0.8s; 
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     
     .card-title {
@@ -82,6 +88,6 @@ const { title, desc, icon, specValue, monto } = Astro.props;
     .monto {
         font-size: 1.75rem;
         font-weight: 700;
-        color: var(--accent-blue);
+        color: var(--sidebar-blue);
     }
 </style>

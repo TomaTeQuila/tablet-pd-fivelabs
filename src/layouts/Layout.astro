@@ -16,15 +16,18 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     <meta name="description" content="Police System App" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />    
+    <title>{title}</title>
   </head>
   <body>
-    <div class="tablet-container">
-      <TabletNavbar />
-      <div class="app-container">
-        <Sidebar />
-        <div class="app-body">
-          <slot />
+    <div class="viewport-container">
+      <div class="tablet-container">
+        <TabletNavbar />
+        <div class="app-container">
+          <Sidebar />
+          <div class="app-body">
+            <slot />
+          </div>
         </div>
       </div>
     </div>
@@ -33,9 +36,7 @@ import TabletNavbar from '../components/TabletNavbar.astro';
 
 <style is:global>
   @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-	html {
-		height: 100vh;	
-	}
+  
   * {
     margin: 0;
     padding: 0;
@@ -43,20 +44,8 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     font-family: 'Funnel Display', sans-serif;
   }
 
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #2d1c2e;
-    color: #fff;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 95vh;
-  }
-
   :root {
-    --app-width: 1400px;
-    --app-height: 900px;
+    /* Colores base */
     --bg-primary: #06080f;
     --bg-secondary: #161920;
     --bg-secondary-alt: #182239;
@@ -70,8 +59,9 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     --text-tertiary: #e7e7e787;
     --text-muted: #718096;
     --text-active: #b5d5f6;
-    --accent-blue: #4299e1;
-	  --accent-darker-blue: #2e3f5f;
+    --accent-blue: #23547c;
+    --sidebar-blue: #3883c0;
+    --accent-darker-blue: #2e3f5f;
     --accent-green: #28583c;
     --accent-red: #f56565;
     --accent-yellow: #ed8936;
@@ -79,13 +69,93 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+    
+    /* Dimensiones base para 1080p (escala 1) */
+    --scale-factor: 1;
+    --app-width: calc(1400px * var(--scale-factor));
+    --app-height: calc(900px * var(--scale-factor));
+    --font-scale: var(--scale-factor);
+    
+    /* Tamaños de fuente base */
+    --font-xs: calc(0.75rem * var(--font-scale));
+    --font-sm: calc(0.875rem * var(--font-scale));
+    --font-base: calc(1rem * var(--font-scale));
+    --font-lg: calc(1.125rem * var(--font-scale));
+    --font-xl: calc(1.25rem * var(--font-scale));
+    --font-2xl: calc(1.5rem * var(--font-scale));
+    --font-3xl: calc(1.875rem * var(--font-scale));
+    
+    /* Espaciados base */
+    --spacing-xs: calc(0.25rem * var(--scale-factor));
+    --spacing-sm: calc(0.5rem * var(--scale-factor));
+    --spacing-md: calc(1rem * var(--scale-factor));
+    --spacing-lg: calc(1.5rem * var(--scale-factor));
+    --spacing-xl: calc(2rem * var(--scale-factor));
+    --spacing-2xl: calc(3rem * var(--scale-factor));
+    
+    /* Border radius */
+    --radius-sm: calc(4px * var(--scale-factor));
+    --radius-md: calc(8px * var(--scale-factor));
+    --radius-lg: calc(16px * var(--scale-factor));
+  }
+
+  /* Para 720p (1280x720) */
+  @media screen and (max-width: 1366px) and (max-height: 768px) {
+    :root {
+      --scale-factor: 0.65;
+    }
+  }
+
+  /* Para 900p (1600x900) */
+  @media screen and (min-width: 1367px) and (max-width: 1680px) and (min-height: 769px) and (max-height: 945px) {
+    :root {
+      --scale-factor: 0.8;
+    }
+  }
+
+  /* Para 1080p (1920x1080) - Base */
+  @media screen and (min-width: 1681px) and (max-width: 2048px) and (min-height: 946px) and (max-height: 1152px) {
+    :root {
+      --scale-factor: 1;
+    }
+  }
+
+
+
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #2d1c2e;
+    color: #fff;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-size: var(--font-base);
+  }
+
+  .viewport-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .tablet-container {
+    width: var(--app-width);
+    height: var(--app-height);
+    display: flex;
+    flex-direction: column;
+    max-width: 95vw;
+    max-height: 95vh;
   }
 
   .app-container {
-    width: var(--app-width);
-    height: var(--app-height);
+    width: 100%;
+    height: 100%;
     background-image: linear-gradient(to right bottom, var(--bg-primary), #0d111f, #101424, #131729, #161a2e, #191d33, #1c2038, #1f233d, #212541, #242746, #26294a, #282b4f);
-    border-radius: 0px 0px 16px 16px;
+    border-radius: 0px 0px var(--radius-lg) var(--radius-lg);
     overflow: hidden;
     display: flex;
     flex-direction: row;
@@ -100,25 +170,109 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     justify-content: start;
     align-content: center;
     width: 100%;
+    overflow: hidden;
+  }
+
+  /* Ajustes para elementos comunes */
+  h1 {
+    font-size: var(--font-2xl);
+  }
+
+  h2 {
+    font-size: var(--font-xl);
+  }
+
+  h3 {
+    font-size: var(--font-lg);
+  }
+
+  p {
+    font-size: var(--font-base);
+  }
+
+  button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-base);
+    border-radius: var(--radius-sm);
+  }
+
+  input, textarea, select {
+    padding: var(--spacing-sm);
+    font-size: var(--font-base);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Iconos de Material Symbols */
+  .material-symbols-rounded {
+    font-size: calc(1.5rem * var(--font-scale));
   }
   
-  /* Scrollbar para navegar por los weones */
-    ::-webkit-scrollbar {
-        width: 0px;
-    }
+  /* Scrollbar responsive */
+  ::-webkit-scrollbar {
+    width: calc(8px * var(--scale-factor));
+  }
 
-    ::-webkit-scrollbar-track {
-        background: transparent;
-    }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-    ::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.073);
-        border-radius: 999px;
-        transition: background-color 0.3s;
-    }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.073);
+    border-radius: calc(999px * var(--scale-factor));
+    transition: background-color 0.3s;
+  }
 
-    ::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(255, 255, 255, 0.275);
-    }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.275);
+  }
 
+  /* Clases de utilidad para márgenes y padding responsive */
+  .p-xs { padding: var(--spacing-xs); }
+  .p-sm { padding: var(--spacing-sm); }
+  .p-md { padding: var(--spacing-md); }
+  .p-lg { padding: var(--spacing-lg); }
+  .p-xl { padding: var(--spacing-xl); }
+
+  .m-xs { margin: var(--spacing-xs); }
+  .m-sm { margin: var(--spacing-sm); }
+  .m-md { margin: var(--spacing-md); }
+  .m-lg { margin: var(--spacing-lg); }
+  .m-xl { margin: var(--spacing-xl); }
+
+  .gap-xs { gap: var(--spacing-xs); }
+  .gap-sm { gap: var(--spacing-sm); }
+  .gap-md { gap: var(--spacing-md); }
+  .gap-lg { gap: var(--spacing-lg); }
+  .gap-xl { gap: var(--spacing-xl); }
+
+  /* Debug helper - opcional, puedes removerlo en producción */
+  body::after {
+    content: '1080p';
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  @media screen and (max-width: 1366px) and (max-height: 768px) {
+    body::after { content: '720p'; }
+  }
+
+  @media screen and (min-width: 1367px) and (max-width: 1680px) and (min-height: 769px) and (max-height: 945px) {
+    body::after { content: '900p'; }
+  }
+
+  @media screen and (min-width: 2049px) and (max-width: 2880px) and (min-height: 1153px) and (max-height: 1620px) {
+    body::after { content: '1440p'; }
+  }
+
+  @media screen and (min-width: 2881px) and (min-height: 1621px) {
+    body::after { content: '4K'; }
+  }
 </style>
