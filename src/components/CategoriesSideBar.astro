@@ -6,7 +6,7 @@ export interface Props {
 import { penal_codes } from '../data/penalcode';
 
 // Obtener categorías únicas directamente de los datos, asegurándose de incluir "Todos"
-const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter(Boolean))];
+const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter((cat): cat is string => typeof cat === 'string' && !!cat))];
 const categories = ["Todos", ...uniqueCategories.sort()];
 
 const { selectedCategory = "Todos" } = Astro.props;
@@ -170,21 +170,17 @@ const categoryCounts = categories.reduce((acc, cat) => {
   .clear-filter span {
     font-size: 1rem;
   }
-
   /* Scrollbar para la lista de categorías */
   .categories-list::-webkit-scrollbar {
     width: 4px;
   }
-
   .categories-list::-webkit-scrollbar-track {
     background: transparent;
   }
-
   .categories-list::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
     border-radius: 2px;
   }
-
   .categories-list::-webkit-scrollbar-thumb:hover {
     background-color: var(--border-light);
   }

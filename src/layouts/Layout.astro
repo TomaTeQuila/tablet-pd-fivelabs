@@ -25,9 +25,9 @@ import TabletNavbar from '../components/TabletNavbar.astro';
         <TabletNavbar />
         <div class="app-container">
           <Sidebar />
-          <div class="app-body">
+          <main class="app-body">
             <slot />
-          </div>
+          </main>
         </div>
       </div>
     </div>
@@ -35,17 +35,15 @@ import TabletNavbar from '../components/TabletNavbar.astro';
 </html>
 
 <style is:global>
-  @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
   
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Funnel Display', sans-serif;
   }
 
   :root {
-    /* Colores base */
     --bg-primary: #06080f;
     --bg-secondary: #161920;
     --bg-secondary-alt: #182239;
@@ -69,77 +67,42 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+
+    --app-width: 1400px;
+    --app-height: 900px;
     
-    /* Dimensiones base para 1080p (escala 1) */
-    --scale-factor: 1;
-    --app-width: calc(1400px * var(--scale-factor));
-    --app-height: calc(900px * var(--scale-factor));
-    --font-scale: var(--scale-factor);
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
     
-    /* Tamaños de fuente base */
-    --font-xs: calc(0.75rem * var(--font-scale));
-    --font-sm: calc(0.875rem * var(--font-scale));
-    --font-base: calc(1rem * var(--font-scale));
-    --font-lg: calc(1.125rem * var(--font-scale));
-    --font-xl: calc(1.25rem * var(--font-scale));
-    --font-2xl: calc(1.5rem * var(--font-scale));
-    --font-3xl: calc(1.875rem * var(--font-scale));
-    
-    /* Espaciados base */
-    --spacing-xs: calc(0.25rem * var(--scale-factor));
-    --spacing-sm: calc(0.5rem * var(--scale-factor));
-    --spacing-md: calc(1rem * var(--scale-factor));
-    --spacing-lg: calc(1.5rem * var(--scale-factor));
-    --spacing-xl: calc(2rem * var(--scale-factor));
-    --spacing-2xl: calc(3rem * var(--scale-factor));
-    
-    /* Border radius */
-    --radius-sm: calc(4px * var(--scale-factor));
-    --radius-md: calc(8px * var(--scale-factor));
-    --radius-lg: calc(16px * var(--scale-factor));
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
   }
 
-  /* Para 720p (1280x720) */
-  @media screen and (max-width: 1366px) and (max-height: 768px) {
+  @media screen and (max-width: 1920px) and (max-height: 1080px) {
     :root {
-      --scale-factor: 0.65;
+      --app-width: min(1400px, 95vw);
+      --app-height: min(900px, 95vh);
     }
   }
-
-  /* Para 900p (1600x900) */
-  @media screen and (min-width: 1367px) and (max-width: 1680px) and (min-height: 769px) and (max-height: 945px) {
-    :root {
-      --scale-factor: 0.8;
-    }
-  }
-
-  /* Para 1080p (1920x1080) - Base */
-  @media screen and (min-width: 1681px) and (max-width: 2048px) and (min-height: 946px) and (max-height: 1152px) {
-    :root {
-      --scale-factor: 1;
-    }
-  }
-
-
-
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Funnel Display', sans-serif;
     background: #2d1c2e;
     color: #fff;
     overflow: hidden;
     width: 100vw;
     height: 100vh;
-    font-size: var(--font-base);
   }
-
   .viewport-container {
     width: 100vw;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
   }
 
   .tablet-container {
@@ -147,69 +110,71 @@ import TabletNavbar from '../components/TabletNavbar.astro';
     height: var(--app-height);
     display: flex;
     flex-direction: column;
-    max-width: 95vw;
-    max-height: 95vh;
   }
 
   .app-container {
-    width: 100%;
-    height: 100%;
+    flex: 1;
     background-image: linear-gradient(to right bottom, var(--bg-primary), #0d111f, #101424, #131729, #161a2e, #191d33, #1c2038, #1f233d, #212541, #242746, #26294a, #282b4f);
-    border-radius: 0px 0px var(--radius-lg) var(--radius-lg);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     overflow: hidden;
     display: flex;
-    flex-direction: row;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
-    border-top: 0px;
+    border-top: 0;
   }
 
   .app-body {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: start;
-    align-content: center;
-    width: 100%;
+    padding: var(--spacing-md);
     overflow: hidden;
   }
 
-  /* Ajustes para elementos comunes */
-  h1 {
-    font-size: var(--font-2xl);
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    margin: 0;
   }
 
-  h2 {
-    font-size: var(--font-xl);
-  }
-
-  h3 {
-    font-size: var(--font-lg);
-  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+  h4 { font-size: 1rem; }
 
   p {
-    font-size: var(--font-base);
+    margin: 0;
+    color: var(--text-secondary);
   }
-
   button {
+    font-family: inherit;
     padding: var(--spacing-sm) var(--spacing-md);
-    font-size: var(--font-base);
+    font-size: 1rem;
     border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
   }
-
   input, textarea, select {
+    font-family: inherit;
     padding: var(--spacing-sm);
-    font-size: var(--font-base);
+    font-size: 1rem;
     border-radius: var(--radius-sm);
+    background-color: transparent;
+    border: 2px solid var(--border-color);
+    color: white;
+    transition: border-color 0.3s ease;
   }
 
-  /* Iconos de Material Symbols */
-  .material-symbols-rounded {
-    font-size: calc(1.5rem * var(--font-scale));
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
   }
-  
-  /* Scrollbar responsive */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
   ::-webkit-scrollbar {
-    width: calc(8px * var(--scale-factor));
+    width: 8px;
   }
 
   ::-webkit-scrollbar-track {
@@ -217,62 +182,24 @@ import TabletNavbar from '../components/TabletNavbar.astro';
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.073);
-    border-radius: calc(999px * var(--scale-factor));
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
     transition: background-color 0.3s;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.275);
+    background-color: rgba(255, 255, 255, 0.2);
   }
-
-  /* Clases de utilidad para márgenes y padding responsive */
-  .p-xs { padding: var(--spacing-xs); }
-  .p-sm { padding: var(--spacing-sm); }
-  .p-md { padding: var(--spacing-md); }
-  .p-lg { padding: var(--spacing-lg); }
-  .p-xl { padding: var(--spacing-xl); }
-
-  .m-xs { margin: var(--spacing-xs); }
-  .m-sm { margin: var(--spacing-sm); }
-  .m-md { margin: var(--spacing-md); }
-  .m-lg { margin: var(--spacing-lg); }
-  .m-xl { margin: var(--spacing-xl); }
-
-  .gap-xs { gap: var(--spacing-xs); }
+  .flex { display: flex; }
+  .flex-col { flex-direction: column; }
+  .items-center { align-items: center; }
+  .justify-center { justify-content: center; }
+  .justify-between { justify-content: space-between; }
   .gap-sm { gap: var(--spacing-sm); }
   .gap-md { gap: var(--spacing-md); }
   .gap-lg { gap: var(--spacing-lg); }
-  .gap-xl { gap: var(--spacing-xl); }
-
-  /* Debug helper - opcional, puedes removerlo en producción */
-  body::after {
-    content: '1080p';
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    z-index: 9999;
-    pointer-events: none;
-  }
-
-  @media screen and (max-width: 1366px) and (max-height: 768px) {
-    body::after { content: '720p'; }
-  }
-
-  @media screen and (min-width: 1367px) and (max-width: 1680px) and (min-height: 769px) and (max-height: 945px) {
-    body::after { content: '900p'; }
-  }
-
-  @media screen and (min-width: 2049px) and (max-width: 2880px) and (min-height: 1153px) and (max-height: 1620px) {
-    body::after { content: '1440p'; }
-  }
-
-  @media screen and (min-width: 2881px) and (min-height: 1621px) {
-    body::after { content: '4K'; }
-  }
+  .w-full { width: 100%; }
+  .h-full { height: 100%; }
+  .overflow-auto { overflow: auto; }
+  .overflow-hidden { overflow: hidden; }
 </style>

@@ -3,37 +3,30 @@ import Layout from "../../layouts/Layout.astro"
 import PenalCodeItems from "../../components/PenalCodeItems.astro"
 import CategoriesSideBar from "../../components/CategoriesSideBar.astro";
 import { penal_codes } from '../../data/penalcode';
+import PageHeader from "../../components/PageHeader.astro";
+import GridContainer from "../../components/GridContainer.astro";
 ---
 
 <Layout title="Multas y condenas">
-    <section class="header-penal-code-section">
-        <div class="header">
-            <div class="header-items">
-                <div class="header-items-top">
-                    <span class="material-symbols-rounded">balance</span>
-                    <h1>Código Penal</h1>
-                </div>
-                <p>Código penal con sus multas y condenas</p>
-            </div>
-            <div class="header-search">
-                <input type="text" placeholder="🔍 Buscar" class="search-input"> 
-            </div>
-        </div>
-    </section>
-    <section class="body-penal-code-section">
-        <div class="body">
-        {Object.values(penal_codes).map((penal_code) => (
+    <PageHeader 
+        icon="group_search"
+        title="Lista de ciudadanos"
+        description="Lista de todos los ciudadanos registrados"
+        showSearch={true}
+        searchPlaceholder="🔍 Buscar ciudadano"
+    />
+    <GridContainer columns={2}>
+        {penal_codes.map((penal_code) => (
             <PenalCodeItems 
-                id={penal_code.id}
-                name={penal_code.name}
-                description={penal_code.description}
-                fine={penal_code.fine}
-                prison={penal_code.prison}
-                category={penal_code.category}
+                    id={penal_code.id}
+                    name={penal_code.name}
+                    description={penal_code.description}
+                    fine={penal_code.fine}
+                    prison={penal_code.prison}
+                    category={penal_code.category}
             />
         ))}
-        </div>
-    </section>
+    </GridContainer>
 </Layout>
 
 <style>

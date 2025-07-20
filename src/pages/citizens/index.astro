@@ -1,94 +1,52 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-
+import PageHeader from "../../components/PageHeader.astro";
+import GridContainer from "../../components/GridContainer.astro";
 import CitizenCard from "../../components/CitizenCard.astro";
-
 import { citizens } from "../../data/citizens";
+
+const citizensList = Object.values(citizens);
 ---
 
-<Layout title="Home">
-    <div class="header">
-        <div class="header-items">
-            <div class="header-items-top">
-                <span class="material-symbols-rounded">group_search</span>
-                <h1>Lista de ciudadanos</h1>
-            </div>
-            <p>Lista de todos los ciudadanos registrados</p>
-        </div>
-        <div class="header-search">
-            <input type="text" placeholder="🔍 Buscar ciudadano" class="search-input"> 
-        </div>
-    </div>
-    <div class="body-content">
-        {Object.values(citizens).map((citizen) => (
-            <CitizenCard 
-                id={citizen.id}
-                name={citizen.name}
-                surname={citizen.surname}
-                mugshot={citizen.mugshot}
-            />
-        ))}
-
-
-    </div>
+<Layout title="Ciudadanos">
+  <PageHeader 
+    icon="group_search"
+    title="Lista de ciudadanos"
+    description="Lista de todos los ciudadanos registrados"
+    showSearch={true}
+    searchPlaceholder="🔍 Buscar ciudadano"
+  />
+  
+  <GridContainer columns={4}>
+    {citizensList.map((citizen) => (
+      <CitizenCard 
+        id={citizen.id}
+        name={citizen.name}
+        surname={citizen.surname}
+        mugshot={citizen.mugshot}
+      />
+    ))}
+  </GridContainer>
 </Layout>
 
-<style>
-    .header {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        margin: 1.25rem;
-    }
-
-    .header-items-top {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .header-items p {
-        display: flex;
-        font-size: 1rem;
-        color: var(--text-tertiary);
-    }
-
-    .header-search {
-        padding-right: 0.8rem;
-    }
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const citizenCards = document.querySelectorAll('.citizen-card');
     
-    .search-input {
-        background-color: transparent;
-        border: 2px solid var(--border-color);
-        border-radius: 5px;
-        padding: 10px;
-        font-size: 1rem;
-        font-family: 'Funnel Display', sans-serif;
-        color: white;
-        width: 20rem;
-    }
-
-    .body-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        gap: 1rem;
-        padding-left: 1rem;
-        overflow-y: auto;
-        height: 100%;
-    }
-
-
-    h1 {
-        font-size: 1.25rem;
-        color: var(--text-primary);
-        font-family: 'Funnel Display', sans-serif;
-        font-weight: 400;
-    }
-    
-    span {
-        font-size: 1.4rem;
-        margin-right: 0.5rem;
-    }
-
-</style>
+    searchInput?.addEventListener('input', (e) => {
+      const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+      
+      citizenCards.forEach(card => {
+        const name = card.getAttribute('data-name')?.toLowerCase() || '';
+        const id = card.getAttribute('data-id')?.toLowerCase() || '';
+        
+        if (name.includes(searchTerm) || id.includes(searchTerm)) {
+          (card as HTMLElement).style.display = 'block';
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

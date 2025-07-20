@@ -1,0 +1,70 @@
+---
+export interface Props {
+  icon: string;
+  title: string;
+  description?: string;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+}
+
+const { icon, title, description, showSearch = false, searchPlaceholder = "🔍 Buscar" } = Astro.props;
+---
+
+<header class="page-header">
+  <div class="header-content">
+    <div class="header-title">
+      <span class="material-symbols-rounded">{icon}</span>
+      <h1>{title}</h1>
+    </div>
+    {description && <p class="header-description">{description}</p>}
+  </div>
+  {showSearch && (
+    <div class="header-search">
+      <input 
+        type="text" 
+        placeholder={searchPlaceholder} 
+        class="search-input"
+        id="searchInput"
+      />
+    </div>
+  )}
+</header>
+
+<style>
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
+
+  .header-content {
+    flex: 1;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .header-title span {
+    font-size: 1.5rem;
+    color: var(--accent-blue);
+  }
+
+  .header-title h1 {
+    color: var(--text-primary);
+  }
+
+  .header-description {
+    color: var(--text-tertiary);
+    font-size: 1rem;
+  }
+
+  .search-input {
+    width: 20rem;
+  }
+</style>

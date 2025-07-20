@@ -1,0 +1,29 @@
+---
+export interface Props {
+  class?: string;
+  hover?: boolean;
+}
+
+const { class: className = '', hover = true } = Astro.props;
+---
+
+<div class={`base-card ${hover ? 'hoverable' : ''} ${className}`}>
+  <slot />
+</div>
+
+<style>
+  .base-card {
+    background: var(--bg-secondary);
+    background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+  }
+
+  .base-card.hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+</style>
