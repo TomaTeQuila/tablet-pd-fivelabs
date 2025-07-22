@@ -2,10 +2,10 @@
 import Layout from "../../../layouts/Layout.astro";
 import StatsCard from "../../../components/cards/StatsCard.astro";
 import CategoriesSideBar from "../../../components/sidebars/CategoriesSideBar.astro";
-import PenalCodeItems from "../../../components/cards/PenalCodeItems.astro"
+import PenalCodeItems from "../../../components/cards/PenalCodeItems.astro";
 
 import { citizens } from "../../../data/citizens";
-import { penal_codes } from '../../../data/penalcode';
+import { penal_codes } from "../../../data/penalcode";
 
 export async function getStaticPaths() {
   return Object.values(citizens).map((c) => ({
@@ -20,88 +20,97 @@ export async function getStaticPaths() {
   }));
 }
 
-const categories = [...new Set(penal_codes.map(penal_code => penal_code.category).filter(Boolean))];
+const categories = [
+  ...new Set(penal_codes.map((p) => p.category).filter(Boolean)),
+];
 const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
 
-var totalMulta = 0
-var totalCondena = 0
-var totalCrimenes = 0
+// Estos valores se irán actualizando en cliente
+let totalMulta = 0;
+let totalCondena = 0;
+let totalCrimenes = 0;
 ---
 
 <Layout title="Add Crime">
-    <div class="container">
-        <section class="header-penal-code-section">
-            <div class="header">
-                <div class="header-items">
-                    <div class="header-items-top">
-                        <span class="material-symbols-rounded">add_notes</span>
-                        <h1>Aplicar sentencia</h1>
-                    </div>
-                    <p>Selecciona los crimenes cometidos por el ciudadano, y aplica la sentencia total</p>
-                    <p transition:name={`h1-${id}`}>{name} {surname} | <span transition:name={`p-${id}`}>{id}</span></p>
-                </div>
-            </div>
-        </section>
-        <section class="offense-resume">
-            <div class="offense-resume-card">
-                <StatsCard 
-                    title="Monto total"
-                    icon="attach_money"
-                    desc="Total de monto a pagar en base a multas"
-                    specValue={`${totalMulta} $`}
-                />
-                <StatsCard 
-                    title="Condena"
-                    icon="rule"
-                    desc="Total de condena que deberá cumplir el ciudadano"
-                    specValue=`${totalCondena}`
-                />
-                <StatsCard 
-                    title="Total crimenes imputado"
-                    icon="files"
-                    desc="Total de condena que deberá cumplir el ciudadano"
-                    specValue=`${totalCrimenes}`
-                />
+  <div class="container">
+    <section class="header-penal-code-section">
+      <div class="header">
+        <div class="header-items">
+          <div class="header-items-top">
+            <span class="material-symbols-rounded">add_notes</span>
+            <h1>Aplicar sentencia</h1>
+          </div>
+          <p>
+            Selecciona los crimenes cometidos por el ciudadano, y aplica la
+            sentencia total
+          </p>
+          <p transition:name={`h1-${id}`}>
+            {name} {surname} | <span transition:name={`p-${id}`}>{id}</span>
+          </p>
+        </div>
+      </div>
+    </section>
 
-            </div>
-        </section>
-        <section class="penal-codes">
-            <div class="penal-codes-container">
-                <div class="category-sidebar">
-                    <CategoriesSideBar />
-                </div>
-                
+    <section class="offense-resume">
+      <div class="offense-resume-card">
+        <StatsCard
+          title="Monto total"
+          icon="attach_money"
+          desc="Total de monto a pagar en base a multas"
+          specValue={`${totalMulta} $`}
+        />
+        <StatsCard
+          title="Condena"
+          icon="rule"
+          desc="Total de condena que deberá cumplir el ciudadano"
+          specValue={`${totalCondena}`}
+        />
+        <StatsCard
+          title="Total crímenes imputados"
+          icon="files"
+          desc="Total de crímenes que se le imputan al ciudadano"
+          specValue={`${totalCrimenes}`}
+        />
+      </div>
+    </section>
 
-                <div class="penal-codes-card">
-                    <div class="search">
-                        <input 
-                            type="text" 
-                            placeholder="🔍 Buscar por nombre o descripción" 
-                            class="search-input"
-                            id="searchInput"
-                        > 
-                    </div>
-                    <div class="penal-codes-grid" id="penalCodesGrid">
-                        {Object.values(penal_codes).map((penal_code) => (
-                                <PenalCodeItems 
-                                    id={penal_code.id}
-                                    name={penal_code.name}
-                                    description={penal_code.description}
-                                    fine={penal_code.fine}
-                                    prison={penal_code.prison}
-                                    category={penal_code.category}
-                                />
-                        ))}
-                    </div>
-                    <div class="no-results" id="noResults" style="display: none;">
-                        <span class="material-symbols-rounded">search_off</span>
-                        <p>No se encontraron resultados</p>
-                    </div>
-                </div>
-            </div>
-            
-        </section>
-    </div>
+    <section class="penal-codes">
+      <div class="penal-codes-container">
+        <div class="category-sidebar">
+          <CategoriesSideBar />
+        </div>
+
+        <div class="penal-codes-card">
+          <div class="search">
+            <input
+              type="text"
+              placeholder="🔍 Buscar por nombre o descripción"
+              class="search-input"
+              id="searchInput"
+            />
+          </div>
+
+          <div class="penal-codes-grid" id="penalCodesGrid">
+            {Object.values(penal_codes).map((penal_code) => (
+              <PenalCodeItems
+                id={penal_code.id}
+                name={penal_code.name}
+                description={penal_code.description}
+                fine={penal_code.fine}
+                prison={penal_code.prison}
+                category={penal_code.category}
+              />
+            ))}
+          </div>
+
+          <div class="no-results" id="noResults" style="display: none;">
+            <span class="material-symbols-rounded">search_off</span>
+            <p>No se encontraron resultados</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>
 
 <style>
@@ -211,6 +220,7 @@ var totalCrimenes = 0
 
    .penal-code-item {
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
     .penal-code-item.hidden {
@@ -220,6 +230,11 @@ var totalCrimenes = 0
     .penal-code-item.fade-out {
         opacity: 0;
         transform: scale(0.95);
+    }
+
+    .penal-code-item.selected {
+        border-color: var(--accent-blue);
+        background-color: rgba(0, 123, 255, 0.1);
     }
 
     .no-results {
