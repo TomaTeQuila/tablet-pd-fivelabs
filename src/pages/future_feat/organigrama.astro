@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import OrganigramaInteractivo from '../../components/others/OrganigramaInteractivo.astro';
+---
+
+<Layout title="Organigrama - Sistema Policial">
+  <div class="organigrama-page">
+    <div class="page-header">
+      <h1>Organigrama Policial</h1>
+      <p>Estructura jerárquica del departamento</p>
+    </div>
+    
+    <div class="organigrama-container">
+      <OrganigramaInteractivo />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .organigrama-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .page-header {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .page-header h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .organigrama-container {
+    flex: 1;
+    overflow: auto;
+    padding: var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+</style>

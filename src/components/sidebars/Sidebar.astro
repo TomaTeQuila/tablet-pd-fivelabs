@@ -1,10 +1,8 @@
 ---
-import type { string } from "astro:schema";
-
 const menuItems = [
   { name: 'Inicio', icon: 'home', href: '/', badge: '' },
   { name: 'Ciudadanos', icon: 'person', href: '/citizens', badge: '' },
-  { name: 'Registro vehículos', icon: 'traffic_jam', href: '/profile', badge: '' },
+  { name: 'Registro vehículos', icon: 'traffic_jam', href: '/vehicles', badge: '' },
   { name: 'Código Penal', icon: 'gavel', href: '/penal_code', badge: '' },
 ];
 
@@ -18,8 +16,9 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(href
 ---
 <div class="sidebar">
   <nav class="sidebar-nav">
+    {isActive}
     {menuItems.map((item) => (
-      <a href={item.href} class={`nav-item ${pathname === item.href ? 'active' : ''}`}>
+      <a href={item.href} class={`nav-item ${isActive(item.href) ? 'active' : ''}`}>
         <span class="nav-icon material-symbols-rounded">{item.icon}</span>
         <span class="nav-text">{item.name}</span>
         {item.badge && (

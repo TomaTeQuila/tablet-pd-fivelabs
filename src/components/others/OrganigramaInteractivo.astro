@@ -1,0 +1,671 @@
+---
+// Datos del organigrama policial
+const organigramaData = {
+  jefe: {
+    rank: "Jefe de Policía",
+    name: "Roberto Méndez García",
+    badge: "PD-0001",
+    description: "Máxima autoridad del departamento",
+    color: "var(--accent-red)",
+    subordinates: 1
+  },
+  subjefe: {
+    rank: "Subjefe de Policía",
+    name: "María González López",
+    badge: "PD-0002",
+    description: "Segunda autoridad del departamento",
+    color: "var(--accent-yellow)",
+    subordinates: 3
+  },
+  capitanes: [
+    {
+      rank: "Capitán",
+      name: "Carlos Ruiz Martínez",
+      badge: "PD-0010",
+      description: "Jefe de división de patrulla",
+      color: "var(--accent-purple)",
+      subordinates: 4
+    },
+    {
+      rank: "Capitán",
+      name: "Elena Torres Sánchez",
+      badge: "PD-0011",
+      description: "Jefe de división de investigaciones",
+      color: "var(--accent-purple)",
+      subordinates: 3
+    },
+    {
+      rank: "Capitán",
+      name: "Fernando López Vega",
+      badge: "PD-0012",
+      description: "Jefe de unidad táctica SWAT",
+      color: "var(--accent-purple)",
+      subordinates: 2
+    }
+  ],
+  tenientes: [
+    {
+      rank: "Teniente",
+      name: "Juan Pérez Rodríguez",
+      badge: "PD-0020",
+      description: "Supervisor de turno matutino",
+      color: "var(--sidebar-blue)",
+      subordinates: 6,
+      supervisor: "PD-0010"
+    },
+    {
+      rank: "Teniente",
+      name: "Ana Silva Morales",
+      badge: "PD-0021",
+      description: "Supervisor de turno vespertino",
+      color: "var(--sidebar-blue)",
+      subordinates: 5,
+      supervisor: "PD-0010"
+    },
+    {
+      rank: "Teniente",
+      name: "Luis Díaz Fernández",
+      badge: "PD-0022",
+      description: "Supervisor de turno nocturno",
+      color: "var(--sidebar-blue)",
+      subordinates: 5,
+      supervisor: "PD-0010"
+    },
+    {
+      rank: "Teniente SWAT",
+      name: "Ricardo Molina Vargas",
+      badge: "SW-001",
+      description: "Líder de equipo táctico",
+      color: "var(--accent-purple)",
+      subordinates: 4,
+      supervisor: "PD-0012"
+    }
+  ],
+  sargentos: [
+    {
+      rank: "Sargento",
+      name: "Pedro Martín Jiménez",
+      badge: "PD-0030",
+      description: "Supervisor de campo - Zona Norte",
+      color: "var(--accent-blue)",
+      subordinates: 8
+    },
+    {
+      rank: "Sargento",
+      name: "Sofia Vargas Castro",
+      badge: "PD-0031",
+      description: "Supervisor de campo - Zona Sur",
+      color: "var(--accent-blue)",
+      subordinates: 7
+    },
+    {
+      rank: "Sargento",
+      name: "Miguel Ángel Herrera",
+      badge: "PD-0032",
+      description: "Supervisor de campo - Zona Centro",
+      color: "var(--accent-blue)",
+      subordinates: 6
+    },
+    {
+      rank: "Sargento",
+      name: "Laura Jiménez Ramos",
+      badge: "PD-0033",
+      description: "Supervisor de investigaciones",
+      color: "var(--accent-blue)",
+      subordinates: 5
+    }
+  ],
+  oficiales: [
+    {
+      rank: "Oficial III",
+      name: "Roberto Castro Mendoza",
+      badge: "PD-0100",
+      description: "Oficial senior de patrulla",
+      color: "var(--accent-green)",
+      subordinates: 0
+    },
+    {
+      rank: "Oficial II",
+      name: "Diego Ramírez Silva",
+      badge: "PD-0102",
+      description: "Oficial de patrulla",
+      color: "var(--accent-green)",
+      subordinates: 0
+    },
+    {
+      rank: "Oficial I",
+      name: "Andrés Gutiérrez León",
+      badge: "PD-0104",
+      description: "Oficial de patrulla",
+      color: "var(--accent-green)",
+      subordinates: 0
+    }
+  ]
+};
+---
+
+<div class="organigrama-container">
+  <!-- Nivel 1: Jefe -->
+  <div class="org-level level-1">
+    <div class="org-card jefe" data-badge={organigramaData.jefe.badge}>
+      <div class="card-avatar" style={`background: ${organigramaData.jefe.color}`}>
+        <span class="avatar-text">JF</span>
+      </div>
+      <div class="card-content">
+        <h3 class="card-name">{organigramaData.jefe.name}</h3>
+        <p class="card-rank">{organigramaData.jefe.rank}</p>
+        <p class="card-department">{organigramaData.jefe.description}</p>
+        <div class="card-badge">{organigramaData.jefe.badge}</div>
+        <div class="subordinates-count">
+          <span>{organigramaData.jefe.subordinates}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Línea vertical -->
+  <div class="connector-vertical"></div>
+
+  <!-- Nivel 2: Subjefe -->
+  <div class="org-level level-2">
+    <div class="org-card subjefe" data-badge={organigramaData.subjefe.badge}>
+      <div class="card-avatar" style={`background: ${organigramaData.subjefe.color}`}>
+        <span class="avatar-text">SJ</span>
+      </div>
+      <div class="card-content">
+        <h3 class="card-name">{organigramaData.subjefe.name}</h3>
+        <p class="card-rank">{organigramaData.subjefe.rank}</p>
+        <p class="card-department">{organigramaData.subjefe.description}</p>
+        <div class="card-badge">{organigramaData.subjefe.badge}</div>
+        <div class="subordinates-count">
+          <span>{organigramaData.subjefe.subordinates}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Línea vertical -->
+  <div class="connector-vertical"></div>
+
+  <!-- Línea horizontal para capitanes -->
+  <div class="connector-horizontal"></div>
+
+  <!-- Nivel 3: Capitanes -->
+  <div class="org-level level-3">
+    {organigramaData.capitanes.map((capitan, index) => (
+      <div class="org-card capitan" data-badge={capitan.badge}>
+        <div class="card-avatar" style={`background: ${capitan.color}`}>
+          <span class="avatar-text">CP</span>
+        </div>
+        <div class="card-content">
+          <h3 class="card-name">{capitan.name}</h3>
+          <p class="card-rank">{capitan.rank}</p>
+          <p class="card-department">{capitan.description}</p>
+          <div class="card-badge">{capitan.badge}</div>
+          <div class="subordinates-count">
+            <span>{capitan.subordinates}</span>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Línea vertical -->
+  <div class="connector-vertical"></div>
+
+  <!-- Línea horizontal para tenientes -->
+  <div class="connector-horizontal"></div>
+
+  <!-- Nivel 4: Tenientes -->
+  <div class="org-level level-4">
+    {organigramaData.tenientes.map((teniente) => (
+      <div class="org-card teniente" data-badge={teniente.badge}>
+        <div class="card-avatar" style={`background: ${teniente.color}`}>
+          <span class="avatar-text">TN</span>
+        </div>
+        <div class="card-content">
+          <h3 class="card-name">{teniente.name}</h3>
+          <p class="card-rank">{teniente.rank}</p>
+          <p class="card-department">{teniente.description}</p>
+          <div class="card-badge">{teniente.badge}</div>
+          <div class="subordinates-count">
+            <span>{teniente.subordinates}</span>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Línea vertical -->
+  <div class="connector-vertical"></div>
+
+  <!-- Línea horizontal para sargentos -->
+  <div class="connector-horizontal"></div>
+
+  <!-- Nivel 5: Sargentos -->
+  <div class="org-level level-5">
+    {organigramaData.sargentos.map((sargento) => (
+      <div class="org-card sargento" data-badge={sargento.badge}>
+        <div class="card-avatar" style={`background: ${sargento.color}`}>
+          <span class="avatar-text">SG</span>
+        </div>
+        <div class="card-content">
+          <h3 class="card-name">{sargento.name}</h3>
+          <p class="card-rank">{sargento.rank}</p>
+          <p class="card-department">{sargento.description}</p>
+          <div class="card-badge">{sargento.badge}</div>
+          <div class="subordinates-count">
+            <span>{sargento.subordinates}</span>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Línea vertical -->
+  <div class="connector-vertical"></div>
+
+  <!-- Línea horizontal para oficiales -->
+  <div class="connector-horizontal"></div>
+
+  <!-- Nivel 6: Oficiales -->
+  <div class="org-level level-6">
+    {organigramaData.oficiales.map((oficial) => (
+      <div class="org-card oficial" data-badge={oficial.badge}>
+        <div class="card-avatar" style={`background: ${oficial.color}`}>
+          <span class="avatar-text">OF</span>
+        </div>
+        <div class="card-content">
+          <h3 class="card-name">{oficial.name}</h3>
+          <p class="card-rank">{oficial.rank}</p>
+          <p class="card-department">{oficial.description}</p>
+          <div class="card-badge">{oficial.badge}</div>
+          <div class="subordinates-count">
+            <span>{oficial.subordinates}</span>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<!-- Modal para detalles -->
+<div id="cargo-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">Detalles del Cargo</h2>
+      <span class="close" id="close-modal">&times;</span>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <!-- Contenido dinámico -->
+    </div>
+  </div>
+</div>
+
+<style>
+  .organigrama-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-xl);
+    gap: var(--spacing-md);
+    min-height: 100%;
+    overflow-x: auto;
+  }
+
+  .org-level {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xl);
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  .org-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-lg);
+    min-width: 280px;
+    max-width: 320px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .org-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-light);
+  }
+
+  .org-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .org-card:hover:before {
+    opacity: 1;
+  }
+
+  .card-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-content {
+    text-align: center;
+  }
+
+  .card-name {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.3;
+  }
+
+  .card-rank {
+    color: var(--text-active);
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .card-department {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.4;
+  }
+
+  .card-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+  }
+
+  .subordinates-count {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-blue);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 3px solid var(--bg-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Líneas conectoras */
+  .connector-vertical {
+    width: 2px;
+    height: 40px;
+    background: var(--border-light);
+    position: relative;
+    z-index: 1;
+  }
+
+  .connector-horizontal {
+    height: 2px;
+    width: 70%;
+    max-width: 800px;
+    background: var(--border-light);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Estilos específicos por nivel */
+  .level-1 .org-card {
+    border: 2px solid var(--accent-red);
+  }
+
+  .level-2 .org-card {
+    border: 2px solid var(--accent-yellow);
+  }
+
+  .level-3 .org-card {
+    border: 2px solid var(--accent-purple);
+  }
+
+  .level-4 .org-card {
+    border: 2px solid var(--sidebar-blue);
+  }
+
+  .level-5 .org-card {
+    border: 2px solid var(--accent-blue);
+  }
+
+  .level-6 .org-card {
+    border: 2px solid var(--accent-green);
+  }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+    margin: 10% auto;
+    padding: 0;
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+  }
+
+  .close {
+    color: var(--text-muted);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .close:hover {
+    color: var(--text-primary);
+  }
+
+  .modal-body {
+    padding: var(--spacing-lg);
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .org-level {
+      gap: var(--spacing-lg);
+    }
+    
+    .org-card {
+      min-width: 250px;
+      max-width: 280px;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .org-level {
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .connector-horizontal {
+      display: none;
+    }
+    
+    .org-card {
+      min-width: 280px;
+      max-width: 320px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('cargo-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    const closeModal = document.getElementById('close-modal');
+
+    // Event listeners para las tarjetas
+    document.querySelectorAll('.org-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const badge = card.dataset.badge;
+        const name = card.querySelector('.card-name').textContent;
+        const rank = card.querySelector('.card-rank').textContent;
+        const department = card.querySelector('.card-department').textContent;
+        
+        modalTitle.textContent = `${rank} - ${name}`;
+        modalBody.innerHTML = `
+          <div class="detail-section">
+            <h3>Información Personal</h3>
+            <ul>
+              <li><strong>Nombre:</strong> ${name}</li>
+              <li><strong>Rango:</strong> ${rank}</li>
+              <li><strong>Placa:</strong> ${badge}</li>
+              <li><strong>Departamento:</strong> ${department}</li>
+            </ul>
+          </div>
+          <div class="detail-section">
+            <h3>Responsabilidades</h3>
+            <ul>
+              <li>Supervisión directa de subordinados</li>
+              <li>Cumplimiento de protocolos departamentales</li>
+              <li>Reportes regulares a supervisor directo</li>
+              <li>Participación en entrenamientos continuos</li>
+            </ul>
+          </div>
+        `;
+        modal.style.display = 'block';
+      });
+    });
+
+    // Cerrar modal
+    closeModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Cerrar modal al hacer click fuera
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display === 'block') {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Añadir estilos para el contenido del modal
+    const style = document.createElement('style');
+    style.textContent = `
+      .detail-section {
+        margin-bottom: 1.5rem;
+      }
+      
+      .detail-section h3 {
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.25rem;
+      }
+      
+      .detail-section ul {
+        list-style: none;
+        padding: 0;
+      }
+      
+      .detail-section li {
+        color: var(--text-secondary);
+        padding: 0.25rem 0;
+        padding-left: 1rem;
+        position: relative;
+      }
+      
+      .detail-section li:before {
+        content: "•";
+        color: var(--accent-blue);
+        position: absolute;
+        left: 0;
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>

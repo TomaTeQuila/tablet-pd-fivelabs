@@ -35,6 +35,7 @@ const categoryCounts = categories.reduce((acc, cat) => {
       <button 
         class={`category-item ${category === selectedCategory ? 'active' : ''}`}
         data-category={category}
+        type="button"
       >
         <span class="category-name">{category}</span>
         <span class="category-count">
@@ -187,51 +188,75 @@ const categoryCounts = categories.reduce((acc, cat) => {
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const buttons = document.querySelectorAll('.category-item');
-    const clearButton = document.querySelector('.clear-filter');
+  // #VibeCodingCheck #Tetas
+  // Función para inicializar los event listeners
+  function initializeCategorySidebar() {
+    const sidebar = document.querySelector('.categories-sidebar');
+    if (!sidebar) return;
+
+    const buttons = sidebar.querySelectorAll('.category-item');
+    const clearButton = sidebar.querySelector('.clear-filter');
     
+    // Remover event listeners anteriores para evitar duplicados
     buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const category = button.getAttribute('data-category');
-            
-            // Remover clase activa de todos los botones
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Agregar clase activa al botón clickeado
-            button.classList.add('active');
-            
-            // Emitir el evento personalizado
-            document.dispatchEvent(new CustomEvent('categoryChange', {
-                detail: { category: category }
-            }));
-        });
+      const newButton = button.cloneNode(true);
+      button.parentNode?.replaceChild(newButton, button);
+    });
+    
+    // Obtener los botones nuevamente después de clonar
+    const newButtons = sidebar.querySelectorAll('.category-item');
+    
+    newButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const category = target.getAttribute('data-category');
+
+        newButtons.forEach(btn => btn.classList.remove('active'));
+        target.classList.add('active');
+
+        document.dispatchEvent(new CustomEvent('categoryChange', {
+          detail: { category }
+        }));
+      });
     });
     
     // Manejar el botón de limpiar filtros
     if (clearButton) {
-        clearButton.addEventListener('click', () => {
-            // Remover clase activa de todos los botones
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Activar el botón "Todos"
-            const todosButton = document.querySelector('[data-category="Todos"]');
-            if (todosButton) {
-                todosButton.classList.add('active');
-            }
-            
-            // Emitir evento para mostrar todos
-            document.dispatchEvent(new CustomEvent('categoryChange', {
-                detail: { category: 'Todos' }
-            }));
-            
-            // También limpiar el input de búsqueda
-            const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-            if (searchInput) {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
-            }
-        });
+      const newClearButton = clearButton.cloneNode(true);
+      clearButton.parentNode?.replaceChild(newClearButton, clearButton);
+      
+      newClearButton.addEventListener('click', () => {
+        // Remover clase activa de todos los botones
+        newButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Activar el botón "Todos"
+        const todosButton = sidebar.querySelector('[data-category="Todos"]');
+        if (todosButton) {
+          todosButton.classList.add('active');
+        }
+        
+        // Emitir evento para mostrar todos
+        document.dispatchEvent(new CustomEvent('categoryChange', {
+          detail: { category: 'Todos' }
+        }));
+        
+        // También limpiar el input de búsqueda
+        const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.dispatchEvent(new Event('input'));
+        }
+      });
     }
-});
+  }
+
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCategorySidebar);
+  } else {
+    initializeCategorySidebar();
+  }
+
+  // Re-inicializar cuando cambie la página (para navegación del lado del cliente)
+  document.addEventListener('astro:page-load', initializeCategorySidebar);
 </script>

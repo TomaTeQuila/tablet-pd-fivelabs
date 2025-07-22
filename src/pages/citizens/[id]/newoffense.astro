@@ -38,7 +38,7 @@ var totalCrimenes = 0
                         <h1>Aplicar sentencia</h1>
                     </div>
                     <p>Selecciona los crimenes cometidos por el ciudadano, y aplica la sentencia total</p>
-                    <p>{name} {surname} | {id}</p>
+                    <p transition:name={`h1-${id}`}>{name} {surname} | <span transition:name={`p-${id}`}>{id}</span></p>
                 </div>
             </div>
         </section>
@@ -243,42 +243,58 @@ var totalCrimenes = 0
 </style>
 
 <script>
-  const selectedItems = new Set();
+  const selectedItems = new Set<HTMLElement>();
 
-  const updateStats = () => {
-    let totalMulta = 0;
-    let totalCondena = 0;
+  function initializePenalCodeSelection() {
+    const wrappers = document.querySelectorAll('.card-wrapper');
+    if (!wrappers.length) return;
 
-    selectedItems.forEach((wrapper) => {
-      const el = wrapper as HTMLElement;
-      const fine = parseInt(el.dataset.fine || "0");
-      const prison = parseInt(el.dataset.prison || "0");
-      totalMulta += fine;
-      totalCondena += prison;
+    wrappers.forEach(wrapper => {
+      if ((wrapper as HTMLElement).dataset.listenerAttached === 'true') return;
+      wrapper.addEventListener('click', () => {
+        wrapper.classList.toggle('selected');
+        if (wrapper.classList.contains('selected')) {
+          selectedItems.add(wrapper as HTMLElement);;
+        } else {
+          selectedItems.delete(wrapper);
+        }
+        updateStats();
+      });
+
+     (wrapper as HTMLElement).dataset.listenerAttached = 'true';
     });
+  }
 
-    const cards = document.querySelectorAll(".offense-resume-card .stats-card");
-    if (cards.length < 3) return;
+  function updateStats() {
+  let totalMulta = 0;
+  let totalCondena = 0;
 
-    const multaNode = cards[0].querySelector(".stats-card-spec-value");
-    const condenaNode = cards[1].querySelector(".stats-card-spec-value");
-    const crimenesNode = cards[2].querySelector(".stats-card-spec-value");
-
-    if (multaNode) multaNode.textContent = `${totalMulta} $`;
-    if (condenaNode) condenaNode.textContent = totalCondena.toString();
-    if (crimenesNode) crimenesNode.textContent = selectedItems.size.toString();
-  };
-
-  document.querySelectorAll('.card-wrapper').forEach(wrapper => {
-    wrapper.addEventListener('click', () => {
-      wrapper.classList.toggle('selected');
-      if (wrapper.classList.contains('selected')) {
-        selectedItems.add(wrapper);
-      } else {
-        selectedItems.delete(wrapper);
-      }
-      updateStats();
-    });
+  selectedItems.forEach((el: HTMLElement) => {
+    const fine = parseInt(el.dataset.fine || "0");
+    const prison = parseInt(el.dataset.prison || "0");
+    totalMulta += fine;
+    totalCondena += prison;
   });
+
+  const cards = document.querySelectorAll(".offense-resume-card .stats-card");
+  if (cards.length < 3) return;
+
+  const multaNode = cards[0].querySelector(".stats-card-spec-value");
+  const condenaNode = cards[1].querySelector(".stats-card-spec-value");
+  const crimenesNode = cards[2].querySelector(".stats-card-spec-value");
+
+  if (multaNode) multaNode.textContent = `${totalMulta} $`;
+  if (condenaNode) condenaNode.textContent = totalCondena.toString();
+  if (crimenesNode) crimenesNode.textContent = selectedItems.size.toString();
+}
+
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePenalCodeSelection);
+  } else {
+    initializePenalCodeSelection();
+  }
+
+  document.addEventListener('astro:page-load', initializePenalCodeSelection);
 </script>
 

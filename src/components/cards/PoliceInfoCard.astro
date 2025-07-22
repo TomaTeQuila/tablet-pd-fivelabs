@@ -1,0 +1,58 @@
+---
+export interface Props {
+  title: string;
+  desc: string;
+  href: string;
+  link_label: string;
+}
+
+const {title, desc, href, link_label} = Astro.props
+---
+
+<div class="card">
+    <div class="card-header">
+        <h1>{title}</h1>
+    </div>
+    <hr>
+    <div class="body">
+        <p>{desc}</p>
+        <a href={href}>{link_label}</a>
+    </div>
+</div>
+
+<style>
+    .card {
+        background-image: linear-gradient(to right top, #1f2536, #1f2537, #1f2537, #1e2538, #1e2538, #1d2539, #1c243a, #1b243b, #19233d, #18233f, #162240, #142142);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        padding: 10px;
+        height: 170px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    hr {
+        border: none;
+        height: 1px;
+        background: var(--border-color);
+        margin: 0.55em 0;    
+    }
+
+    .body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    
+    a {
+        margin-top: auto;
+        margin-bottom: 5px;
+        text-shadow: -2px 0px 5px rgba(0,0,0,0.39);
+        transition: 0.2s;
+    }
+
+    a:hover {
+        color: rgb(143, 166, 201);
+    }
+
+</style>

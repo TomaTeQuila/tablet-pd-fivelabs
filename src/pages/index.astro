@@ -2,7 +2,9 @@
 import Layout from "../layouts/Layout.astro";
 import StatsCard from "../components/cards/StatsCard.astro";
 import PageHeader from "../components/general/PageHeader.astro";
+import PoliceInfoCard from "../components/cards/PoliceInfoCard.astro";
 import GridContainer from "../components/general/GridContainer.astro";
+
 
 import { sourceOfficerData } from "../data/officer"
 
@@ -19,63 +21,56 @@ const officerName = `${prefix} ${sourceOfficerData.name.toUpperCase()} ${sourceO
         searchPlaceholder=""
     />
     <div class="body-content">
-        <StatsCard title="Total multas", 
-        desc="Total de multas impuestas y cobradas por el oficial"
-        icon="payments" specValue="10" monto="50000$"/>
-        <StatsCard title="Total horas de servicio", 
-        desc="Total de horas ejercidas en servicio por el oficial"
-        icon="av_timer" specValue={String(sourceOfficerData.serviceHours)}/>
-        <StatsCard title="Rango", 
-        desc="Rango actual del oficial"
-        icon="social_leaderboard" specValue={sourceOfficerData.rank}/>
+        <div class="officer-stats-container">
+            <StatsCard title="Total multas", 
+            desc="Total de multas impuestas y cobradas por el oficial"
+            icon="payments" specValue="10" monto="50000$"/>
+            <StatsCard title="Total horas de servicio", 
+            desc="Total de horas ejercidas en servicio por el oficial"
+            icon="av_timer" specValue={String(sourceOfficerData.serviceHours)}/>
+            <StatsCard title="Rango", 
+            desc="Rango actual del oficial"
+            icon="social_leaderboard" specValue={sourceOfficerData.rank}/>
+        </div>
+        <div class="police-info-container">
+            <GridContainer columns={2}>
+                <PoliceInfoCard
+                    title="Normativa" 
+                    desc="Debes constantemente estar revisando las reglas de la policía, para que puedas cumplir tu trabajo de manera excepcional." 
+                    href="#"
+                    link_label="Ver normativa..."
+                />
+                <PoliceInfoCard
+                    title="Organigrama" 
+                    desc="Revisa el organigrama de la institución, para conocer a tus compañeros, superiores o tus personas a cargo." 
+                    href="/organigrama"
+                    link_label="Ver Organigrama..."
+                />
+                <PoliceInfoCard
+                    title="Noticias" 
+                    desc="Revisa las noticias más recientes relacionadas a la ciudad." 
+                    href="#"
+                    link_label="Ver Operativos..."
+                />
+            </GridContainer>
+        </div>
+</Layout>
     </div>   
 </Layout>
 
 <style>
-    .body-header {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        justify-content: center;
-    }
-
-    .body-header-items-top {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-    }
-
-    .body-header-items p {
-        font-size: 1rem;
-        color: var(--text-tertiary);
-    }
-
     .body-content {
+        display: flex;
+        flex-direction: column;   
+    }
+    .officer-stats-container {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 1rem;
+        gap: 20px;
     }
 
-    h1 {
-        font-size: 1.25rem;
-        color: var(--text-primary);
-        font-family: 'Funnel Display', sans-serif;
-        font-weight: 400;
+    .police-info-container {
+        margin-top: 25px;
     }
-
-    .header-h1-name {
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    span {
-        font-size: 1.4rem;
-        margin-right: 0.5rem;
-    }
-
-    .police-icon {
-        font-size: 1.75rem;
-        color: var(--accent-blue);
-        margin-right: 0.5rem;
-    }
+    
 </style>

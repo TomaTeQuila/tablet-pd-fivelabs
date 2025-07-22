@@ -7,7 +7,7 @@ export interface Vehicle {
   notes?: string;
 }
 
-const base = "https://raw.githubusercontent.com/MericcaN41/gta5carimages/main/images";
+const base = "https://docs.fivem.net/vehicles/";
 
 export const vehicles: Record<string, Vehicle[]> = {
   Z1001: [

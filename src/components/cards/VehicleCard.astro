@@ -11,8 +11,7 @@ export interface VehicleCardProps {
   notes?: string;
 }
 
-const { index, model, type, plate, color, notes } = Astro.props as VehicleCardProps;
-const image = `https://docs.fivem.net/vehicles/${model}.webp`
+const { index, model, type, plate, color, notes, image } = Astro.props as VehicleCardProps;
 ---
 
 <div class="card">
@@ -77,7 +76,7 @@ const image = `https://docs.fivem.net/vehicles/${model}.webp`
     
     button {
         background-color: var(--accent-darker-blue);
-        margin-top: auto;
+        margin-top: 12px;
         color: white;
         border: none;
         border-radius: 5px;

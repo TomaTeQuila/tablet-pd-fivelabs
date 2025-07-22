@@ -1,0 +1,56 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PageHeader from "../../components/general/PageHeader.astro";
+import GridContainer from "../../components/general/GridContainer.astro";
+import CitizenCard from "../../components/cards/CitizenCard.astro";
+import { vehicles, type Vehicle } from "../../data/vehicles";
+import VehicleCard from "../../components/cards/VehicleCard.astro";
+
+const base = "https://docs.fivem.net/vehicles/";
+const vehiclesList = Object.values(vehicles).flat(); 
+---
+
+<Layout title="Vehiculos">
+  <PageHeader 
+    icon="traffic_jam"
+    title="Lista de vehículos"
+    description="Lista de todos los vehículos registrados"
+    showSearch={true}
+    searchPlaceholder="🔍 Buscar vehículo"
+  />
+  <GridContainer columns={4}>
+    {vehiclesList.map((vehicle) => (
+      <VehicleCard
+        index=""
+        model={vehicle.model}
+        type={vehicle.type}
+        plate={vehicle.plate}
+        color={vehicle.color}
+        image={`${base}/${vehicle.model.toLowerCase()}.webp`}
+        notes={vehicle.notes}
+        />
+    ))}
+  </GridContainer>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    const citizenCards = document.querySelectorAll('.citizen-card');
+    
+    searchInput?.addEventListener('input', (e) => {
+      const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+      
+      citizenCards.forEach(card => {
+        const name = card.getAttribute('data-name')?.toLowerCase() || '';
+        const id = card.getAttribute('data-id')?.toLowerCase() || '';
+        
+        if (name.includes(searchTerm) || id.includes(searchTerm)) {
+          (card as HTMLElement).style.display = 'block';
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
