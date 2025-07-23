@@ -110,7 +110,7 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
             citizenCrimes.map((crime: Crime, index: number) => (
               <CrimeCard
                 index={index + 1}
-                reason={crime.reason}
+                name={crime.name}
                 date={crime.date}
                 hour={crime.hour}
                 details={crime.details}

@@ -3,7 +3,7 @@ const API_BASE_URL = 'http://localhost:3000/api';
 
 // Interfaces
 export interface Crime {
-  reason: string;
+  name: string;
   date: string;
   hour: string;
   details: string;
@@ -17,7 +17,7 @@ export interface UserOffense {
   penal_code_id: number;
   date_time: string;
   notes: string | null;
-  crime_name: string;
+  name: string;
   crime_description: string;
   fine: number;
   prison: number;
@@ -38,7 +38,7 @@ function transformUserOffenseToCrime(offense: UserOffense): Crime {
   const date = new Date(offense.date_time);
   
   return {
-    reason: offense.crime_name,
+    name: offense.name,
     date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
     hour: date.toTimeString().split(' ')[0].slice(0, 5), // Formato HH:MM
     details: offense.notes || offense.crime_description,
@@ -67,7 +67,6 @@ export async function getCrimesForUser(userId: string): Promise<Crime[]> {
       return [];
     }
     
-    // Transformar los datos del API al formato esperado por el frontend
     return data.data.map(transformUserOffenseToCrime);
     
   } catch (error) {

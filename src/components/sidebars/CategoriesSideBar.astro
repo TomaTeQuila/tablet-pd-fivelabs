@@ -5,13 +5,11 @@ export interface Props {
 
 import { penal_codes } from '../../data/penalcode';
 
-// Obtener categorías únicas directamente de los datos, asegurándose de incluir "Todos"
 const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter((cat): cat is string => typeof cat === 'string' && !!cat))];
 const categories = ["Todos", ...uniqueCategories.sort()];
 
 const { selectedCategory = "Todos" } = Astro.props;
 
-// Contar cuántos códigos hay por categoría
 const categoryCounts = categories.reduce((acc, cat) => {
   if (cat === "Todos") {
     acc[cat] = penal_codes.length;
