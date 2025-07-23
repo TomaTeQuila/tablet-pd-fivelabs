@@ -16,7 +16,13 @@ const { pathname } = Astro.url;
 const { id, name, description, fine, prison, category } = Astro.props;
 ---
 
-<div class="card-wrapper" data-id={id} data-fine={fine} data-prison={prison}>
+<div class="card-wrapper"
+     data-id={id}
+     data-name={name}
+     data-description={description}
+     data-category={category || 'Sin categoría'}
+     data-fine={fine}
+     data-prison={prison}>
   <div class="card">
     <div class="card-header">
       <div class="card-header-name">

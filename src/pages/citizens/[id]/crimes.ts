@@ -1,10 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
 
-// Configuración del backend
 const BACKEND_API_URL = 'http://localhost:3000/api';
-
-// Interfaces
 interface CreateCrimeRequest {
   user_id: string;
   officer_id: string;
@@ -15,8 +12,6 @@ interface CreateCrimeRequest {
 interface DeleteCrimeRequest {
   penal_code_id: number;
 }
-
-// Helper function para hacer requests al backend
 async function backendRequest(endpoint: string, options: RequestInit = {}) {
   try {
     const response = await fetch(`${BACKEND_API_URL}${endpoint}`, {
@@ -43,8 +38,6 @@ async function backendRequest(endpoint: string, options: RequestInit = {}) {
     };
   }
 }
-
-// GET: Obtener todos los crímenes de un ciudadano
 export const GET: APIRoute = async ({ params }) => {
   const { id } = params;
 
@@ -74,7 +67,6 @@ export const GET: APIRoute = async ({ params }) => {
       );
     }
 
-    // Transformar los datos del backend al formato esperado por el frontend
     const transformedCrimes = result.data.data.map((offense: any) => {
       const date = new Date(offense.date_time);
       
@@ -85,7 +77,6 @@ export const GET: APIRoute = async ({ params }) => {
         details: offense.notes || offense.crime_description,
         conviction: `${offense.prison} meses de prisión`,
         fine: `${offense.fine} CLP`,
-        // Datos adicionales para el frontend
         penal_code_id: offense.penal_code_id,
         officer_info: {
           name: `${offense.officer_firstname} ${offense.officer_lastname}`,
@@ -122,7 +113,6 @@ export const GET: APIRoute = async ({ params }) => {
   }
 };
 
-// POST: Crear un nuevo crimen para un ciudadano
 export const POST: APIRoute = async ({ params, request }) => {
   const { id } = params;
 
@@ -142,7 +132,6 @@ export const POST: APIRoute = async ({ params, request }) => {
   try {
     const body = await request.json();
     
-    // Validar campos requeridos
     if (!body.officer_id || !body.penal_code_id) {
       return new Response(
         JSON.stringify({ 
@@ -156,7 +145,6 @@ export const POST: APIRoute = async ({ params, request }) => {
       );
     }
 
-    // Preparar datos para el backend
     const crimeData: CreateCrimeRequest = {
       user_id: id,
       officer_id: body.officer_id,
@@ -179,7 +167,6 @@ export const POST: APIRoute = async ({ params, request }) => {
       );
     }
 
-    // Transformar la respuesta del backend
     const offense = result.data.data;
     const date = new Date(offense.date_time);
     
@@ -225,7 +212,6 @@ export const POST: APIRoute = async ({ params, request }) => {
   }
 };
 
-// DELETE: Eliminar un crimen específico
 export const DELETE: APIRoute = async ({ params, request }) => {
   const { id } = params;
 

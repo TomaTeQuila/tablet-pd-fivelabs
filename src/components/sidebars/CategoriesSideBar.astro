@@ -1,23 +1,27 @@
 ---
+import type { PenalCode } from '../../data/penalcode';
+
 export interface Props {
-  selectedCategory?: string;
+penal_codes?: PenalCode[];
+selectedCategory?: string;
 }
 
-import { penal_codes } from '../../data/penalcode';
+const { penal_codes = [], selectedCategory = "Todos" } = Astro.props;
 
-const uniqueCategories = [...new Set(penal_codes.map(code => code.category).filter((cat): cat is string => typeof cat === 'string' && !!cat))];
+const uniqueCategories = [...new Set(
+penal_codes
+.map(pc => pc.category)
+.filter((cat): cat is string => typeof cat === 'string' && !!cat)
+)];
+
 const categories = ["Todos", ...uniqueCategories.sort()];
 
-const { selectedCategory = "Todos" } = Astro.props;
-
-const categoryCounts = categories.reduce((acc, cat) => {
-  if (cat === "Todos") {
-    acc[cat] = penal_codes.length;
-  } else {
-    acc[cat] = penal_codes.filter(code => code.category === cat).length;
-  }
-  return acc;
-}, {} as Record<string, number>)
+const categoryCounts: Record<string, number> = categories.reduce<Record<string, number>>((acc, cat) => {
+acc[cat] = cat === "Todos"
+? penal_codes.length
+: penal_codes.filter(pc => pc.category === cat).length;
+return acc;
+}, {});
 
 /* Full hecho por IA esta wea xd */
 ---
@@ -30,21 +34,19 @@ const categoryCounts = categories.reduce((acc, cat) => {
   
   <div class="categories-list">
     {categories.map((category) => (
-      <button 
+      <button
         class={`category-item ${category === selectedCategory ? 'active' : ''}`}
         data-category={category}
         type="button"
       >
         <span class="category-name">{category}</span>
-        <span class="category-count">
-          {categoryCounts[String(category)] ?? 0}
-        </span>
+        <span class="category-count">{categoryCounts[category] ?? 0}</span>
       </button>
     ))}
   </div>
   
   <div class="categories-footer">
-    <button class="clear-filter">
+    <button class="clear-filter" type="button">
       <span class="material-symbols-rounded">clear_all</span>
       Limpiar filtros
     </button>
@@ -64,7 +66,6 @@ const categoryCounts = categories.reduce((acc, cat) => {
     flex-direction: column;
     gap: 16px;
   }
-
   .categories-header {
     display: flex;
     align-items: center;
@@ -72,19 +73,16 @@ const categoryCounts = categories.reduce((acc, cat) => {
     padding-bottom: 8px;
     border-bottom: 1px solid var(--border-color);
   }
-
   .categories-header span {
     color: var(--accent-blue);
     font-size: 1.2rem;
   }
-
   .categories-header h3 {
     color: var(--text-primary);
     font-size: 1rem;
     font-weight: 500;
     margin: 0;
   }
-
   .categories-list {
     display: flex;
     flex-direction: column;
@@ -92,7 +90,6 @@ const categoryCounts = categories.reduce((acc, cat) => {
     overflow-y: auto;
     flex: 1;
   }
-
   .category-item {
     display: flex;
     justify-content: space-between;
@@ -106,28 +103,23 @@ const categoryCounts = categories.reduce((acc, cat) => {
     color: var(--text-secondary);
     font-size: 0.9rem;
   }
-
   .category-item:hover {
     background: var(--bg-tertiary);
     border-color: var(--border-light);
     color: var(--text-primary);
   }
-
   .category-item.active {
     background: var(--accent-blue);
     border-color: var(--accent-blue);
     color: white;
   }
-
   .category-item.active .category-count {
     background: rgba(255, 255, 255, 0.2);
     color: white;
   }
-
   .category-name {
     font-weight: 400;
   }
-
   .category-count {
     background: var(--bg-tertiary);
     color: var(--text-tertiary);
@@ -138,12 +130,10 @@ const categoryCounts = categories.reduce((acc, cat) => {
     min-width: 20px;
     text-align: center;
   }
-
   .categories-footer {
     padding-top: 8px;
     border-top: 1px solid var(--border-color);
   }
-
   .clear-filter {
     display: flex;
     align-items: center;
@@ -159,23 +149,16 @@ const categoryCounts = categories.reduce((acc, cat) => {
     width: 100%;
     justify-content: center;
   }
-
   .clear-filter:hover {
     background: var(--bg-tertiary);
     border-color: var(--border-light);
     color: var(--text-primary);
   }
-
   .clear-filter span {
     font-size: 1rem;
   }
-  
-  .categories-list::-webkit-scrollbar {
-    width: 4px;
-  }
-  .categories-list::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  .categories-list::-webkit-scrollbar { width: 4px; }
+  .categories-list::-webkit-scrollbar-track { background: transparent; }
   .categories-list::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
     border-radius: 2px;
@@ -185,31 +168,27 @@ const categoryCounts = categories.reduce((acc, cat) => {
   }
 </style>
 
-<script>
+<script lang="ts">
   // #VibeCodingCheck #Tetas
-  // Función para inicializar los event listeners
-  function initializeCategorySidebar() {
+  function initCategorySidebar() {
     const sidebar = document.querySelector('.categories-sidebar');
     if (!sidebar) return;
 
     const buttons = sidebar.querySelectorAll('.category-item');
-    const clearButton = sidebar.querySelector('.clear-filter');
-    
-    // Remover event listeners anteriores para evitar duplicados
-    buttons.forEach(button => {
-      const newButton = button.cloneNode(true);
-      button.parentNode?.replaceChild(newButton, button);
+    const clearBtn = sidebar.querySelector('.clear-filter');
+
+    buttons.forEach(btn => {
+      btn.replaceWith(btn.cloneNode(true));
     });
-    
-    // Obtener los botones nuevamente después de clonar
-    const newButtons = sidebar.querySelectorAll('.category-item');
-    
-    newButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLElement;
+
+    const freshButtons = sidebar.querySelectorAll('.category-item');
+
+    freshButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget;
         const category = target.getAttribute('data-category');
 
-        newButtons.forEach(btn => btn.classList.remove('active'));
+        freshButtons.forEach(b => b.classList.remove('active'));
         target.classList.add('active');
 
         document.dispatchEvent(new CustomEvent('categoryChange', {
@@ -217,44 +196,33 @@ const categoryCounts = categories.reduce((acc, cat) => {
         }));
       });
     });
-    
-    // Manejar el botón de limpiar filtros
-    if (clearButton) {
-      const newClearButton = clearButton.cloneNode(true);
-      clearButton.parentNode?.replaceChild(newClearButton, clearButton);
-      
-      newClearButton.addEventListener('click', () => {
-        // Remover clase activa de todos los botones
-        newButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Activar el botón "Todos"
-        const todosButton = sidebar.querySelector('[data-category="Todos"]');
-        if (todosButton) {
-          todosButton.classList.add('active');
-        }
-        
-        // Emitir evento para mostrar todos
+
+    if (clearBtn) {
+      const newClear = clearBtn.cloneNode(true);
+      clearBtn.replaceWith(newClear);
+      newClear.addEventListener('click', () => {
+        freshButtons.forEach(b => b.classList.remove('active'));
+        const todos = sidebar.querySelector('[data-category="Todos"]');
+        if (todos) todos.classList.add('active');
+
         document.dispatchEvent(new CustomEvent('categoryChange', {
           detail: { category: 'Todos' }
         }));
-        
-        // También limpiar el input de búsqueda
-        const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.value = '';
-          searchInput.dispatchEvent(new Event('input'));
+
+        const search = document.getElementById('searchInput');
+        if (search) {
+          search.value = '';
+          search.dispatchEvent(new Event('input'));
         }
       });
     }
   }
 
-  // Inicializar cuando el DOM esté listo
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeCategorySidebar);
+    document.addEventListener('DOMContentLoaded', initCategorySidebar);
   } else {
-    initializeCategorySidebar();
+    initCategorySidebar();
   }
 
-  // Re-inicializar cuando cambie la página (para navegación del lado del cliente)
-  document.addEventListener('astro:page-load', initializeCategorySidebar);
+  document.addEventListener('astro:page-load', initCategorySidebar);
 </script>

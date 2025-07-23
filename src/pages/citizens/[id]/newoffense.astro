@@ -3,6 +3,8 @@ import Layout from "../../../layouts/Layout.astro";
 import StatsCard from "../../../components/cards/StatsCard.astro";
 import CategoriesSideBar from "../../../components/sidebars/CategoriesSideBar.astro";
 import PenalCodeItems from "../../../components/cards/PenalCodeItems.astro";
+import { getAllPenalCodes, type PenalCode } from '../../../data/penalcode';
+
 
 import { citizens } from "../../../data/citizens";
 import { sourceOfficerData } from "../../../data/officer";
@@ -22,24 +24,11 @@ export async function getStaticPaths() {
 
 const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
 
-// Obtener códigos penales del backend
-let penal_codes = [];
-let error = null;
-
+let penal_codes: PenalCode[] = [];
 try {
-  const response = await fetch('http://localhost:3000/api/penal-codes');
-  if (response.ok) {
-    const data = await response.json();
-    penal_codes = data.success ? data.data : [];
-  } else {
-    console.warn('Backend no disponible, usando datos de fallback');
-    error = 'Backend no disponible';
-  }
-} catch (e) {
-  console.warn('Error conectando al backend:', e.message);
-  error = 'Error de conexión';
-  const { penal_codes: fallbackCodes } = await import("../../../data/penalcode");
-  penal_codes = fallbackCodes;
+  penal_codes = await getAllPenalCodes();
+} catch (error) {
+  console.error(`Error obteniendo datos para codigo penal: `, error);
 }
 ---
 
@@ -89,7 +78,7 @@ try {
       <div class="penal-codes-container">
         <div class="sidebar-container">
           <div class="category-sidebar">
-            <CategoriesSideBar />
+            <CategoriesSideBar penal_codes={penal_codes} selectedCategory="Todos" />
           </div>
           
           <div class="action-buttons">
@@ -116,13 +105,6 @@ try {
               value=""
             />
           </div>
-
-          {error && (
-            <div class="error-banner">
-              <span class="material-symbols-rounded">warning</span>
-              <p>⚠️ {error} - Usando datos locales</p>
-            </div>
-          )}
 
           <div class="penal-codes-grid" id="penalCodesGrid">
             {penal_codes.length > 0 ? (
@@ -157,7 +139,6 @@ try {
     </section>
   </div>
 
-  <!-- Modal de confirmación -->
   <div id="confirmModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -168,7 +149,6 @@ try {
         <div class="confirmation-details">
           <h3>Resumen de la sentencia:</h3>
           <div class="sentence-summary" id="sentenceSummary">
-            <!-- Se llenará dinámicamente -->
           </div>
           <p><strong>¿Estás seguro de que quieres aplicar esta sentencia?</strong></p>
           <p class="warning-text">Esta acción no se puede deshacer.</p>
@@ -184,7 +164,6 @@ try {
     </div>
   </div>
 
-  <!-- Modal de loading -->
   <div id="loadingModal" class="modal">
     <div class="modal-content loading-modal">
       <div class="loading-spinner"></div>
@@ -192,7 +171,6 @@ try {
     </div>
   </div>
 
-  <!-- Modal de resultado -->
   <div id="resultModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -201,7 +179,6 @@ try {
       </div>
       <div class="modal-body">
         <div id="resultMessage">
-          <!-- Se llenará dinámicamente -->
         </div>
       </div>
       <div class="modal-footer">
@@ -614,6 +591,64 @@ try {
    }
 </style>
 
-<script>
+<script lang="ts">
+(function () {
+  const grid = document.getElementById('penalCodesGrid');
+  const noResults = document.getElementById('noResults');
+  const searchInput = document.getElementById('searchInput');
 
+  // Estado actual del filtro
+  let currentCategory = 'Todos';
+  let currentSearch = '';
+
+  // Todas las cards (usa tus data-* del componente PenalCodeItems)
+  const cards = Array.from(grid.querySelectorAll('.card-wrapper'));
+
+  function normalize(str) {
+    return (str || '').toLowerCase().trim();
+  }
+
+  function applyFilters() {
+    const term = normalize(currentSearch);
+    let visible = 0;
+
+    cards.forEach(card => {
+      const cat = card.dataset.category || '';
+      const name = card.dataset.name || '';
+      const desc = card.dataset.description || '';
+
+      const matchCategory = currentCategory === 'Todos' || cat === currentCategory;
+      const matchSearch = !term ||
+        normalize(name).includes(term) ||
+        normalize(desc).includes(term);
+
+      const show = matchCategory && matchSearch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (noResults) noResults.style.display = visible === 0 ? 'flex' : 'none';
+  }
+
+  // Search
+  if (searchInput) {
+    let timeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        currentSearch = e.target.value;
+        applyFilters();
+      }, 150);
+    });
+  }
+
+  // Categoría (evento emitido por el sidebar)
+  document.addEventListener('categoryChange', (e) => {
+    currentCategory = e.detail.category;
+    applyFilters();
+  });
+
+  // Primer render
+  applyFilters();
+})();
 </script>

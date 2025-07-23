@@ -1,7 +1,5 @@
-// Configuración del API
 const API_BASE_URL = 'http://localhost:3000/api';
 
-// Interfaces
 export interface Crime {
   name: string;
   date: string;
@@ -32,8 +30,6 @@ export interface CreateCrimeRequest {
   penal_code_id: number;
   notes?: string;
 }
-
-// Función para transformar UserOffense del API al formato Crime del frontend
 function transformUserOffenseToCrime(offense: UserOffense): Crime {
   const date = new Date(offense.date_time);
   
@@ -47,14 +43,12 @@ function transformUserOffenseToCrime(offense: UserOffense): Crime {
   };
 }
 
-// Función para obtener crímenes de un usuario específico
 export async function getCrimesForUser(userId: string): Promise<Crime[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/user-offenses/${userId}`);
     
     if (!response.ok) {
       if (response.status === 404) {
-        // Usuario no encontrado o sin crímenes
         return [];
       }
       throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -75,10 +69,8 @@ export async function getCrimesForUser(userId: string): Promise<Crime[]> {
   }
 }
 
-// Función para obtener todos los crímenes (simulando el comportamiento original)
 export async function getAllCrimes(): Promise<Record<string, Crime[]>> {
   try {
-    // Primero obtenemos todos los usuarios
     const usersResponse = await fetch(`${API_BASE_URL}/users`);
     
     if (!usersResponse.ok) {
@@ -88,7 +80,6 @@ export async function getAllCrimes(): Promise<Record<string, Crime[]>> {
     const usersData = await usersResponse.json();
     const crimes: Record<string, Crime[]> = {};
     
-    // Para cada usuario, obtenemos sus crímenes
     for (const user of usersData.data) {
       const userCrimes = await getCrimesForUser(user.identifier);
       if (userCrimes.length > 0) {
@@ -104,7 +95,6 @@ export async function getAllCrimes(): Promise<Record<string, Crime[]>> {
   }
 }
 
-// Función para crear un nuevo crimen
 export async function createCrime(crimeData: CreateCrimeRequest): Promise<UserOffense | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/user-offenses`, {
@@ -134,7 +124,6 @@ export async function createCrime(crimeData: CreateCrimeRequest): Promise<UserOf
   }
 }
 
-// Función para eliminar un crimen
 export async function deleteCrime(userId: string, penalCodeId: number): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/user-offenses/${userId}/${penalCodeId}`, {
@@ -154,7 +143,6 @@ export async function deleteCrime(userId: string, penalCodeId: number): Promise<
   }
 }
 
-// Función helper para verificar la conectividad del API
 export async function checkApiHealth(): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/health`);
@@ -166,7 +154,6 @@ export async function checkApiHealth(): Promise<boolean> {
   }
 }
 
-// Función para obtener estadísticas de crímenes de un usuario
 export async function getUserCrimeStats(userId: string): Promise<{
   totalCrimes: number;
   totalFines: number;
@@ -200,8 +187,6 @@ export async function getUserCrimeStats(userId: string): Promise<{
   }
 }
 
-// Exportar datos por defecto para compatibilidad con el código existente
-// NOTA: Esta función es async, por lo que donde se use necesitará await
 export const crimes = {
   async getForUser(userId: string): Promise<Crime[]> {
     return await getCrimesForUser(userId);
@@ -212,11 +197,10 @@ export const crimes = {
   }
 };
 
-// Datos estáticos de fallback (por si el API no está disponible)
 export const fallbackCrimes: Record<string, Crime[]> = {
   Z1001: [
     {
-      reason: 'Robo con violencia',
+      name: 'Robo con violencia',
       date: '2023-05-12',
       hour: '22:15',
       details: 'Asaltó a un peatón en sector céntrico de la ciudad y sustrajo sus pertenencias',
@@ -224,7 +208,7 @@ export const fallbackCrimes: Record<string, Crime[]> = {
       fine: '200.000 CLP'
     },
     {
-      reason: 'Conducción bajo efecto de alcohol',
+      name: 'Conducción bajo efecto de alcohol',
       date: '2022-11-03',
       hour: '03:40',
       details: 'Fue detenido manejando con 1.5 g/L de alcohol en sangre tras colisionar un vehículo estacionado',
@@ -232,10 +216,8 @@ export const fallbackCrimes: Record<string, Crime[]> = {
       fine: '100.000 CLP'
     }
   ],
-  // Más datos de fallback si es necesario...
 };
 
-// Función helper para usar en los componentes con manejo de errores
 export async function getCrimesWithFallback(userId: string): Promise<Crime[]> {
   const isApiHealthy = await checkApiHealth();
   

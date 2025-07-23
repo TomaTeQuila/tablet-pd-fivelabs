@@ -2,9 +2,18 @@
 import Layout from "../../layouts/Layout.astro" 
 import PenalCodeItems from "../../components/cards/PenalCodeItems.astro"
 import CategoriesSideBar from "../../components/sidebars/CategoriesSideBar.astro";
-import { penal_codes } from '../../data/penalcode';
+import { getAllPenalCodes, type PenalCode } from '../../data/penalcode';
 import PageHeader from "../../components/general/PageHeader.astro";
 import GridContainer from "../../components/general/GridContainer.astro";
+
+let penal_codes: PenalCode[] = [];
+
+try {
+  penal_codes = await getAllPenalCodes();
+} catch (error) {
+  console.error(`Error obteniendo datos para codigo penal: `, error);
+}
+
 ---
 
 <Layout title="Multas y condenas">
