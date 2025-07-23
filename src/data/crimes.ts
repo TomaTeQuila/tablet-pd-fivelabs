@@ -1,3 +1,7 @@
+// Configuración del API
+const API_BASE_URL = 'http://localhost:3000/api';
+
+// Interfaces
 export interface Crime {
   reason: string;
   date: string;
@@ -7,7 +11,210 @@ export interface Crime {
   fine: string;
 }
 
+export interface UserOffense {
+  user_id: string;
+  officer_id: string;
+  penal_code_id: number;
+  date_time: string;
+  notes: string | null;
+  crime_name: string;
+  crime_description: string;
+  fine: number;
+  prison: number;
+  officer_firstname: string;
+  officer_lastname: string;
+  officer_badge: string;
+}
+
+export interface CreateCrimeRequest {
+  user_id: string;
+  officer_id: string;
+  penal_code_id: number;
+  notes?: string;
+}
+
+// Función para transformar UserOffense del API al formato Crime del frontend
+function transformUserOffenseToCrime(offense: UserOffense): Crime {
+  const date = new Date(offense.date_time);
+  
+  return {
+    reason: offense.crime_name,
+    date: date.toISOString().split('T')[0], // Formato YYYY-MM-DD
+    hour: date.toTimeString().split(' ')[0].slice(0, 5), // Formato HH:MM
+    details: offense.notes || offense.crime_description,
+    conviction: `${offense.prison} meses de prisión`,
+    fine: `${offense.fine} CLP`
+  };
+}
+
+// Función para obtener crímenes de un usuario específico
+export async function getCrimesForUser(userId: string): Promise<Crime[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-offenses/${userId}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Usuario no encontrado o sin crímenes
+        return [];
+      }
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success || !Array.isArray(data.data)) {
+      console.warn('Formato de respuesta inesperado:', data);
+      return [];
+    }
+    
+    // Transformar los datos del API al formato esperado por el frontend
+    return data.data.map(transformUserOffenseToCrime);
+    
+  } catch (error) {
+    console.error(`Error obteniendo crímenes para usuario ${userId}:`, error);
+    return [];
+  }
+}
+
+// Función para obtener todos los crímenes (simulando el comportamiento original)
+export async function getAllCrimes(): Promise<Record<string, Crime[]>> {
+  try {
+    // Primero obtenemos todos los usuarios
+    const usersResponse = await fetch(`${API_BASE_URL}/users`);
+    
+    if (!usersResponse.ok) {
+      throw new Error('No se pudieron obtener los usuarios');
+    }
+    
+    const usersData = await usersResponse.json();
+    const crimes: Record<string, Crime[]> = {};
+    
+    // Para cada usuario, obtenemos sus crímenes
+    for (const user of usersData.data) {
+      const userCrimes = await getCrimesForUser(user.identifier);
+      if (userCrimes.length > 0) {
+        crimes[user.identifier] = userCrimes;
+      }
+    }
+    
+    return crimes;
+    
+  } catch (error) {
+    console.error('Error obteniendo todos los crímenes:', error);
+    return {};
+  }
+}
+
+// Función para crear un nuevo crimen
+export async function createCrime(crimeData: CreateCrimeRequest): Promise<UserOffense | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-offenses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(crimeData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && data.data) {
+      return data.data as UserOffense;
+    }
+    
+    throw new Error('Respuesta del servidor no válida');
+    
+  } catch (error) {
+    console.error('Error creando crimen:', error);
+    throw error;
+  }
+}
+
+// Función para eliminar un crimen
+export async function deleteCrime(userId: string, penalCodeId: number): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-offenses/${userId}/${penalCodeId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.success === true;
+    
+  } catch (error) {
+    console.error('Error eliminando crimen:', error);
+    return false;
+  }
+}
+
+// Función helper para verificar la conectividad del API
+export async function checkApiHealth(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`);
+    const data = await response.json();
+    return data.success === true;
+  } catch (error) {
+    console.error('API no disponible:', error);
+    return false;
+  }
+}
+
+// Función para obtener estadísticas de crímenes de un usuario
+export async function getUserCrimeStats(userId: string): Promise<{
+  totalCrimes: number;
+  totalFines: number;
+  totalPrison: number;
+}> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user-offenses/${userId}`);
+    
+    if (!response.ok) {
+      return { totalCrimes: 0, totalFines: 0, totalPrison: 0 };
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success || !Array.isArray(data.data)) {
+      return { totalCrimes: 0, totalFines: 0, totalPrison: 0 };
+    }
+    
+    const stats = data.data.reduce((acc: any, offense: UserOffense) => {
+      acc.totalCrimes += 1;
+      acc.totalFines += offense.fine || 0;
+      acc.totalPrison += offense.prison || 0;
+      return acc;
+    }, { totalCrimes: 0, totalFines: 0, totalPrison: 0 });
+    
+    return stats;
+    
+  } catch (error) {
+    console.error('Error obteniendo estadísticas:', error);
+    return { totalCrimes: 0, totalFines: 0, totalPrison: 0 };
+  }
+}
+
+// Exportar datos por defecto para compatibilidad con el código existente
+// NOTA: Esta función es async, por lo que donde se use necesitará await
 export const crimes = {
+  async getForUser(userId: string): Promise<Crime[]> {
+    return await getCrimesForUser(userId);
+  },
+  
+  async getAll(): Promise<Record<string, Crime[]>> {
+    return await getAllCrimes();
+  }
+};
+
+// Datos estáticos de fallback (por si el API no está disponible)
+export const fallbackCrimes: Record<string, Crime[]> = {
   Z1001: [
     {
       reason: 'Robo con violencia',
@@ -26,202 +233,17 @@ export const crimes = {
       fine: '100.000 CLP'
     }
   ],
-  Z1002: [
-    {
-      reason: 'Vandalismo',
-      date: '2023-09-07',
-      hour: '01:20',
-      details: 'Pintó grafitis en edificio patrimonial del casco histórico',
-      conviction: '120 horas de trabajos comunitarios',
-      fine: '150.000 CLP'
-    },
-    {
-      reason: 'Robo armado',
-      date: '2024-02-07',
-      hour: '05:22',
-      details: 'Robo con pistola de bajo calibre 9mm',
-      conviction: '120 meses',
-      fine: '850000$'
-    }
-  ],
-  Z1003: [
-    {
-      reason: 'Hurto simple',
-      date: '2024-01-18',
-      hour: '16:50',
-      details: 'Sustrajo productos de un supermercado sin pasar por caja',
-      conviction: 'Libertad vigilada por 8 meses',
-      fine: '80.000 CLP'
-    }
-  ],
-  Z1004: [
-    {
-      reason: 'Fraude',
-      date: '2023-12-21',
-      hour: '10:30',
-      details: 'Emitió boletas ideológicamente falsas para su empresa',
-      conviction: '1 año de prisión conmutada',
-      fine: '500.000 CLP'
-    }
-  ],
-  Z1005: [
-    {
-      reason: 'Posesión de drogas',
-      date: '2022-07-15',
-      hour: '18:05',
-      details: 'Fue sorprendido con pequeñas dosis de cannabis',
-      conviction: 'Tratamiento obligatorio de 6 meses',
-      fine: '50.000 CLP'
-    }
-  ],
-  Z1006: [
-    {
-      reason: 'Violencia intrafamiliar',
-      date: '2023-03-22',
-      hour: '21:00',
-      details: 'Agresión física a su pareja',
-      conviction: '300 horas de trabajos comunitarios',
-      fine: '120.000 CLP'
-    }
-  ],
-  Z1007: [
-    {
-      reason: 'Tráfico de animales',
-      date: '2022-10-05',
-      hour: '14:45',
-      details: 'Transportaba aves protegidas sin autorización',
-      conviction: 'Libertad vigilada por 1 año',
-      fine: '250.000 CLP'
-    }
-  ],
-  Z1008: [
-    {
-      reason: 'Asalto',
-      date: '2024-02-02',
-      hour: '02:30',
-      details: 'Ingresó a una vivienda y amenazó a sus ocupantes con arma blanca',
-      conviction: '2 años de prisión efectiva',
-      fine: '0 CLP'
-    }
-  ],
-  Z1009: [
-    {
-      reason: 'Evasión de impuestos',
-      date: '2023-08-30',
-      hour: '11:15',
-      details: 'No declaró ingresos de su negocio durante el ejercicio fiscal',
-      conviction: 'Multa duplicada y 6 meses de suspensión de actividades',
-      fine: '1.000.000 CLP'
-    }
-  ],
-  Z1010: [
-    {
-      reason: 'Daños a propiedad pública',
-      date: '2024-03-10',
-      hour: '23:55',
-      details: 'Rompió ventanas de paradas de bus durante manifestación',
-      conviction: '150 horas de trabajos comunitarios',
-      fine: '200.000 CLP'
-    }
-  ],
-  Z1011: [
-    {
-      reason: 'Contrabando',
-      date: '2022-06-12',
-      hour: '05:20',
-      details: 'Ingresó mercancía sin declaración aduanera',
-      conviction: '1 año de libertad vigilada',
-      fine: '750.000 CLP'
-    }
-  ],
-  Z1012: [
-    {
-      reason: 'Hurto agravado',
-      date: '2023-11-11',
-      hour: '19:40',
-      details: 'Robó artículos de alto valor con intimidación',
-      conviction: '3 años de prisión conmutada',
-      fine: '300.000 CLP'
-    }
-  ],
-  Z1013: [
-    {
-      reason: 'Robo en lugar habitado',
-      date: '2024-04-01',
-      hour: '04:10',
-      details: 'Forzó la puerta de una casa y sustrajo objetos de valor',
-      conviction: '4 años de prisión efectiva',
-      fine: '0 CLP'
-    }
-  ],
-  Z1014: [
-    {
-      reason: 'Conducta molesta',
-      date: '2022-09-18',
-      hour: '22:00',
-      details: 'Perturbó la paz en local nocturno',
-      conviction: '50 horas de trabajo comunitario',
-      fine: '30.000 CLP'
-    }
-  ],
-  Z1015: [
-    {
-      reason: 'Violencia en eventos deportivos',
-      date: '2023-10-20',
-      hour: '20:30',
-      details: 'Se peleó con otros hinchas dentro del estadio',
-      conviction: '75 horas trabajos comunitarios',
-      fine: '100.000 CLP'
-    }
-  ],
-  Z1016: [
-    {
-      reason: 'Robo de vehículo',
-      date: '2023-01-07',
-      hour: '06:50',
-      details: 'Sustrajo un automóvil estacionado en la vía pública',
-      conviction: '2 años de prisión efectiva',
-      fine: '0 CLP'
-    }
-  ],
-  Z1017: [
-    {
-      reason: 'Posesión de arma prohibida',
-      date: '2022-12-02',
-      hour: '15:15',
-      details: 'Portaba un arma de fuego sin licencia',
-      conviction: '1 año de prisión remitida',
-      fine: '400.000 CLP'
-    }
-  ],
-  Z1018: [
-    {
-      reason: 'Fraude bancario',
-      date: '2024-05-05',
-      hour: '09:25',
-      details: 'Intentó transferir fondos de otra cuenta sin autorización',
-      conviction: '2 años de libertad vigilada',
-      fine: '600.000 CLP'
-    }
-  ],
-  Z1019: [
-    {
-      reason: 'Daño a bienes culturales',
-      date: '2023-02-28',
-      hour: '13:40',
-      details: 'Dañó esculturas de museo con aerosol',
-      conviction: 'Libertad vigilada por 1 año',
-      fine: '350.000 CLP'
-    }
-  ],
-  Z1020: [
-    {
-      reason: 'Tráfico de influencias',
-      date: '2022-08-22',
-      hour: '11:00',
-      details: 'Intercedió para favorecer a empresa en licitación pública',
-      conviction: '1.5 años de prisión remitida',
-      fine: '900.000 CLP'
-    }
-  ]
+  // Más datos de fallback si es necesario...
 };
+
+// Función helper para usar en los componentes con manejo de errores
+export async function getCrimesWithFallback(userId: string): Promise<Crime[]> {
+  const isApiHealthy = await checkApiHealth();
+  
+  if (!isApiHealthy) {
+    console.warn('API no disponible, usando datos de fallback');
+    return fallbackCrimes[userId] || [];
+  }
+  
+  return await getCrimesForUser(userId);
+}

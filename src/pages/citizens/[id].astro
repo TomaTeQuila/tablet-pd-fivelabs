@@ -6,7 +6,7 @@ import VehicleCard from "../../components/cards/VehicleCard.astro";
 import StatsCard from "../../components/cards/StatsCard.astro"
 import defaultPic from "../../assets/default-pic.jpg";
 
-import { crimes, type Crime } from '../../data/crimes';
+import { getCrimesWithFallback, getUserCrimeStats, type Crime } from '../../data/crimes';
 import { citizens } from "../../data/citizens";
 import { vehicles, type Vehicle } from '../../data/vehicles';
 
@@ -27,7 +27,16 @@ const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
 const rawMugshot = mugshotProp || defaultPic;
 const mugshot = typeof rawMugshot === 'string' ? rawMugshot : rawMugshot.src;
 const base = "https://docs.fivem.net/vehicles/";
-const citizenCrimes: Crime[] = (crimes as Record<string, Crime[]>)[id] || [];
+let citizenCrimes: Crime[] = [];
+let crimeStats = { totalCrimes: 0, totalFines: 0, totalPrison: 0 };
+
+try {
+  citizenCrimes = await getCrimesWithFallback(id);
+  crimeStats = await getUserCrimeStats(id);
+} catch (error) {
+  console.error(`Error obteniendo datos para ciudadano ${id}:`, error);
+}
+
 const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] || []; 
 ---
 
@@ -45,10 +54,31 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
           </div>
         </div>
         <div class="personal-stats">
-          <StatsCard title="Delitos" desc="Total delitos" icon="gavel" specValue="10" />
-          <StatsCard title="Vehiculos" desc="Total vehiculos" icon="directions_car" specValue="2" />
-          <StatsCard title="Multas" desc="Monto y total de multas sin pagar" icon="attach_money" specValue="2" monto="525800$" />
-          <StatsCard title="Propiedades" desc="Total propiedades" icon="apartment" specValue="2"/>
+          <StatsCard 
+            title="Delitos" 
+            desc="Total delitos" 
+            icon="gavel" 
+            specValue={crimeStats.totalCrimes.toString()} 
+          />
+          <StatsCard 
+            title="Vehiculos" 
+            desc="Total vehiculos" 
+            icon="directions_car" 
+            specValue={citizenVehicles.length.toString()} 
+          />
+          <StatsCard 
+            title="Multas" 
+            desc="Monto y total de multas sin pagar" 
+            icon="attach_money" 
+            specValue={crimeStats.totalCrimes.toString()} 
+            monto={`${crimeStats.totalFines}$`} 
+          />
+          <StatsCard 
+            title="Propiedades" 
+            desc="Total propiedades" 
+            icon="apartment" 
+            specValue="2"
+          />
         </div>
       </div>
     </section>
@@ -76,17 +106,23 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
 
       <div class="prontuario-data">
         <CitizenDataCard title="Prontuario" id={id}>
-          {citizenCrimes.map((crime: Crime, index: number) => (
-            <CrimeCard
-              index={index + 1}
-              reason={crime.reason}
-              date={crime.date}
-              hour={crime.hour}
-              details={crime.details}
-              conviction={crime.conviction}
-              fine={crime.fine}
-            />
-          ))}
+          {citizenCrimes.length > 0 ? (
+            citizenCrimes.map((crime: Crime, index: number) => (
+              <CrimeCard
+                index={index + 1}
+                reason={crime.reason}
+                date={crime.date}
+                hour={crime.hour}
+                details={crime.details}
+                conviction={crime.conviction}
+                fine={crime.fine}
+              />
+            ))
+          ) : (
+            <div class="no-crimes">
+              <p>No hay crímenes registrados para este ciudadano.</p>
+            </div>
+          )}
         </CitizenDataCard>
       </div>
       
@@ -132,7 +168,8 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
     display: flex;
     flex-direction: column;
   }
-.text-personal-data p {
+  
+  .text-personal-data p {
     font-size: 1.2rem;
     color: var(--text-tertiary);
     font-family: 'Funnel Display', sans-serif;
@@ -161,10 +198,32 @@ const citizenVehicles: Vehicle[] = (vehicles as Record<string, Vehicle[]>)[id] |
     flex-direction: row;
     gap: 0.25rem;
   }
+  
   .personal-stats {
     margin-top: auto;
     display: grid;
     grid-template-columns: 1fr 1fr 2fr auto;
     gap: 5px;
   }
+
+  .no-crimes {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
 </style>
+
+<script>
+  // Script para recargar los datos cuando sea necesario
+  document.addEventListener('DOMContentLoaded', () => {
+    // Agregar funcionalidad para recargar crímenes si es necesario
+    const refreshButton = document.getElementById('refresh-crimes');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', () => {
+        window.location.reload();
+      });
+    }
+  });
+</script>
