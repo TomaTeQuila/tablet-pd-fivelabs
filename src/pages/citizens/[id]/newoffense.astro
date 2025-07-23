@@ -5,7 +5,7 @@ import CategoriesSideBar from "../../../components/sidebars/CategoriesSideBar.as
 import PenalCodeItems from "../../../components/cards/PenalCodeItems.astro";
 
 import { citizens } from "../../../data/citizens";
-import { penal_codes } from "../../../data/penalcode";
+import { sourceOfficerData } from "../../../data/officer";
 
 export async function getStaticPaths() {
   return Object.values(citizens).map((c) => ({
@@ -20,20 +20,33 @@ export async function getStaticPaths() {
   }));
 }
 
-const categories = [
-  ...new Set(penal_codes.map((p) => p.category).filter(Boolean)),
-];
 const { id, name, surname, mugshot: mugshotProp, job } = Astro.props;
 
-// Estos valores se irán actualizando en cliente
-let totalMulta = 0;
-let totalCondena = 0;
-let totalCrimenes = 0;
+// Obtener códigos penales del backend
+let penal_codes = [];
+let error = null;
+
+try {
+  const response = await fetch('http://localhost:3000/api/penal-codes');
+  if (response.ok) {
+    const data = await response.json();
+    penal_codes = data.success ? data.data : [];
+  } else {
+    console.warn('Backend no disponible, usando datos de fallback');
+    error = 'Backend no disponible';
+  }
+} catch (e) {
+  console.warn('Error conectando al backend:', e.message);
+  error = 'Error de conexión';
+  // Fallback a datos estáticos si el backend no está disponible
+  const { penal_codes: fallbackCodes } = await import("../../../data/penalcode");
+  penal_codes = fallbackCodes;
+}
 ---
 
 <Layout title="Add Crime">
   <div class="container">
-    <section class="header-penal-code-section">
+    <section class="header-section sticky-header">
       <div class="header">
         <div class="header-items">
           <div class="header-items-top">
@@ -41,7 +54,7 @@ let totalCrimenes = 0;
             <h1>Aplicar sentencia</h1>
           </div>
           <p>
-            Selecciona los crimenes cometidos por el ciudadano, y aplica la
+            Selecciona los crímenes cometidos por el ciudadano, y aplica la
             sentencia total
           </p>
           <p transition:name={`h1-${id}`}>
@@ -49,35 +62,48 @@ let totalCrimenes = 0;
           </p>
         </div>
       </div>
-    </section>
-
-    <section class="offense-resume">
-      <div class="offense-resume-card">
-        <StatsCard
-          title="Monto total"
-          icon="attach_money"
-          desc="Total de monto a pagar en base a multas"
-          specValue={`${totalMulta} $`}
-        />
-        <StatsCard
-          title="Condena"
-          icon="rule"
-          desc="Total de condena que deberá cumplir el ciudadano"
-          specValue={`${totalCondena}`}
-        />
-        <StatsCard
-          title="Total crímenes imputados"
-          icon="files"
-          desc="Total de crímenes que se le imputan al ciudadano"
-          specValue={`${totalCrimenes}`}
-        />
+      <div class="offense-resume">
+        <div class="offense-resume-card">
+          <StatsCard
+            title="Monto total"
+            icon="attach_money"
+            desc="Total de monto a pagar en base a multas"
+            specValue="0 $"
+          />
+          <StatsCard
+            title="Condena"
+            icon="rule"
+            desc="Total de condena que deberá cumplir el ciudadano"
+            specValue="0 meses"
+          />
+          <StatsCard
+            title="Total crímenes imputados"
+            icon="files"
+            desc="Total de crímenes que se le imputan al ciudadano"
+            specValue="0"
+          />
+        </div>
       </div>
     </section>
 
-    <section class="penal-codes">
+    <section class="body-section">
       <div class="penal-codes-container">
-        <div class="category-sidebar">
-          <CategoriesSideBar />
+        <div class="sidebar-container">
+          <div class="category-sidebar">
+            <CategoriesSideBar />
+          </div>
+          
+          <div class="action-buttons">
+            <button type="button" class="btn-cancel" onclick="window.history.back()">
+              <span class="material-symbols-rounded">close</span>
+              Cancelar
+            </button>
+            
+            <button type="button" class="btn-apply" id="applyButton" disabled>
+              <span class="material-symbols-rounded">gavel</span>
+              Aplicar sentencia
+            </button>
+          </div>
         </div>
 
         <div class="penal-codes-card">
@@ -92,17 +118,35 @@ let totalCrimenes = 0;
             />
           </div>
 
+          {error && (
+            <div class="error-banner">
+              <span class="material-symbols-rounded">warning</span>
+              <p>⚠️ {error} - Usando datos locales</p>
+            </div>
+          )}
+
           <div class="penal-codes-grid" id="penalCodesGrid">
-            {Object.values(penal_codes).map((penal_code) => (
-              <PenalCodeItems
-                id={penal_code.id}
-                name={penal_code.name}
-                description={penal_code.description}
-                fine={penal_code.fine}
-                prison={penal_code.prison}
-                category={penal_code.category}
-              />
-            ))}
+            {penal_codes.length > 0 ? (
+              penal_codes.map((penal_code) => (
+                <PenalCodeItems
+                  id={penal_code.id}
+                  name={penal_code.name}
+                  description={penal_code.description}
+                  fine={penal_code.fine}
+                  prison={penal_code.prison}
+                  category={penal_code.category}
+                />
+              ))
+            ) : (
+              <div class="no-codes">
+                <span class="material-symbols-rounded">error</span>
+                <p>No se pudieron cargar los códigos penales</p>
+                <button onclick="window.location.reload()" class="retry-btn">
+                  <span class="material-symbols-rounded">refresh</span>
+                  Reintentar
+                </button>
+              </div>
+            )}
           </div>
 
           <div class="no-results" id="noResults" style="display: none;">
@@ -113,30 +157,80 @@ let totalCrimenes = 0;
       </div>
     </section>
   </div>
+
+  <!-- Modal de confirmación -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Confirmar sentencia</h2>
+        <span class="close" id="closeModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="confirmation-details">
+          <h3>Resumen de la sentencia:</h3>
+          <div class="sentence-summary" id="sentenceSummary">
+            <!-- Se llenará dinámicamente -->
+          </div>
+          <p><strong>¿Estás seguro de que quieres aplicar esta sentencia?</strong></p>
+          <p class="warning-text">Esta acción no se puede deshacer.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="cancelConfirm">Cancelar</button>
+        <button type="button" class="btn-confirm" id="confirmApply">
+          <span class="material-symbols-rounded">check</span>
+          Confirmar sentencia
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de loading -->
+  <div id="loadingModal" class="modal">
+    <div class="modal-content loading-modal">
+      <div class="loading-spinner"></div>
+      <p>Aplicando sentencia...</p>
+    </div>
+  </div>
+
+  <!-- Modal de resultado -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="resultTitle">Resultado</h2>
+        <span class="close" id="closeResultModal">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="resultMessage">
+          <!-- Se llenará dinámicamente -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" id="resultOkButton">OK</button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <style>
    .container {
        display: flex;
        flex-direction: column;
-       padding: 16px;
        height: 100vh;
+       overflow: hidden;
    }
 
-   .header-penal-code-section {
-       display: flex;
-       flex-direction: row;
-       justify-content: start;
-       align-items: center;
-       width: 100%;
+   .sticky-header {
+       position: sticky;
+       top: 0;
+       z-index: 50;
+       border-bottom: 1px solid var(--border-color);
+       padding: 16px;
+       flex-shrink: 0;
    }
 
    .header {
-       display: flex;
-       flex-direction: row;
-       align-items: center;
-       justify-content: space-between;
-       width: 100%;
+       margin-bottom: 16px;
    }
 
    .header-items-top {
@@ -144,6 +238,7 @@ let totalCrimenes = 0;
        flex-direction: row;
        align-items: center;
        gap: 0.40rem;
+       margin-bottom: 8px;
    }
 
    .header-items-top h1 {
@@ -154,13 +249,9 @@ let totalCrimenes = 0;
    }
 
    .header-items p {
-       display: flex;
        font-size: 1rem;
        color: var(--text-tertiary);
-   }
-   
-   section.offense-resume {
-       margin: 25px 0px;
+       margin: 2px 0;
    }
    
    .offense-resume-card {
@@ -168,47 +259,127 @@ let totalCrimenes = 0;
        grid-template-columns: 1fr 1fr 1fr;
        gap: 20px;
    }
-   
-   section.penal-codes {
+
+   /* Body scrollable */
+   .body-section {
        flex: 1;
-       min-height: 0;
+       overflow: hidden;
+       padding: 16px;
    }
    
    .penal-codes-container {
        display: flex;
        flex-direction: row;
-       gap: 8px;
+       gap: 16px;
        height: 100%;
    }
-   
-   .search {
+
+   /* Sidebar container con botones */
+   .sidebar-container {
        display: flex;
-       width: 100%;
-       flex-direction: row;
-       margin-bottom: 4px;
-   }
-   
-   .search-input {
-       background-color: transparent;
-       border: 2px solid var(--border-color);
-       border-radius: 5px;
-       padding: 10px 10px;
-       font-size: 1rem;
-       font-family: 'Funnel Display', sans-serif;
-       color: white;
-       width: 20rem;
-       margin-left: auto;
+       flex-direction: column;
+       gap: 16px;
+       width: 220px;
+       flex-shrink: 0;
    }
 
+   .category-sidebar {
+       flex: 1;
+   }
+
+   /* Botones integrados en el sidebar */
+   .action-buttons {
+       display: flex;
+       flex-direction: column;
+       gap: 12px;
+       padding: 16px;
+       background: var(--bg-secondary);
+       border: 1px solid var(--border-color);
+       border-radius: 8px;
+   }
+
+   .btn-cancel {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 8px;
+       background: var(--bg-tertiary);
+       color: var(--text-secondary);
+       border: 1px solid var(--border-color);
+       padding: 12px 16px;
+       border-radius: 6px;
+       cursor: pointer;
+       transition: all 0.2s ease;
+       font-size: 0.9rem;
+   }
+
+   .btn-cancel:hover {
+       background: var(--bg-elevated);
+       color: var(--text-primary);
+   }
+
+   .btn-apply {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       gap: 8px;
+       background: var(--accent-green);
+       color: white;
+       border: none;
+       padding: 12px 16px;
+       border-radius: 6px;
+       cursor: pointer;
+       transition: all 0.2s ease;
+       font-weight: 600;
+       font-size: 0.9rem;
+   }
+
+   .btn-apply:enabled:hover {
+       background: #34a853;
+       transform: translateY(-1px);
+   }
+
+   .btn-apply:disabled {
+       background: var(--bg-tertiary);
+       color: var(--text-muted);
+       cursor: not-allowed;
+   }
+
+   /* Códigos penales */
    .penal-codes-card {
        display: flex;
        flex-direction: column;
        height: 100%;
        width: 100%;
        background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
-       padding: 8px;
+       padding: 16px;
        border: 1px solid var(--border-color);
+       border-radius: 8px;
+       overflow: hidden;
+   }
+
+   .search {
+       display: flex;
+       width: 100%;
+       margin-bottom: 12px;
+   }
+   
+   .search-input {
+       background-color: transparent;
+       border: 2px solid var(--border-color);
        border-radius: 5px;
+       padding: 10px 12px;
+       font-size: 1rem;
+       font-family: 'Funnel Display', sans-serif;
+       color: white;
+       width: 100%;
+       max-width: 300px;
+       margin-left: auto;
+   }
+
+   .search-input:focus {
+       outline: none;
+       border-color: var(--accent-blue);
    }
 
    .penal-codes-grid {
@@ -220,98 +391,542 @@ let totalCrimenes = 0;
        min-height: 0;
    }
 
-   .penal-code-item {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
+   .error-banner {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       background: rgba(237, 137, 54, 0.1);
+       border: 1px solid var(--accent-yellow);
+       border-radius: 4px;
+       padding: 8px 12px;
+       margin-bottom: 8px;
+       color: var(--accent-yellow);
+   }
 
-    .penal-code-item.hidden {
-        display: none;
-    }
+   .no-codes {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+       gap: 1rem;
+       flex: 1;
+       color: var(--text-tertiary);
+   }
 
-    .penal-code-item.fade-out {
-        opacity: 0;
-        transform: scale(0.95);
-    }
+   .no-codes span {
+       font-size: 3rem;
+       opacity: 0.5;
+       color: var(--accent-red);
+   }
 
-    .penal-code-item.selected {
-        border-color: var(--accent-blue);
-        background-color: rgba(0, 123, 255, 0.1);
-    }
+   .retry-btn {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       background: var(--accent-blue);
+       color: white;
+       border: none;
+       padding: 8px 16px;
+       border-radius: 4px;
+       cursor: pointer;
+       transition: all 0.2s ease;
+   }
 
-    .no-results {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        flex: 1;
-        color: var(--text-tertiary);
-    }
+   .retry-btn:hover {
+       background: var(--sidebar-blue);
+   }
 
-    .no-results span {
-        font-size: 3rem;
-        opacity: 0.5;
-    }
+   .no-results {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+       gap: 1rem;
+       flex: 1;
+       color: var(--text-tertiary);
+   }
 
-    .no-results p {
-        font-size: 1.1rem;
-    }
+   .no-results span {
+       font-size: 3rem;
+       opacity: 0.5;
+   }
+
+   /* Botones de confirmación en modales */
+   .btn-confirm {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       background: var(--accent-red);
+       color: white;
+       border: none;
+       padding: 12px 20px;
+       border-radius: 6px;
+       cursor: pointer;
+       transition: all 0.2s ease;
+       font-weight: 600;
+   }
+
+   .btn-confirm:hover {
+       background: #e53e3e;
+   }
+
+   .btn-primary {
+       background: var(--accent-blue);
+       color: white;
+       border: none;
+       padding: 12px 20px;
+       border-radius: 6px;
+       cursor: pointer;
+       transition: all 0.2s ease;
+       font-weight: 600;
+   }
+
+   .btn-primary:hover {
+       background: var(--sidebar-blue);
+   }
+
+   /* Modales */
+   .modal {
+       display: none;
+       position: fixed;
+       z-index: 1000;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+       background-color: rgba(0, 0, 0, 0.8);
+       backdrop-filter: blur(2px);
+   }
+
+   .modal-content {
+       background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+       margin: 10% auto;
+       padding: 0;
+       border-radius: 12px;
+       width: 90%;
+       max-width: 500px;
+       box-shadow: var(--shadow-lg);
+       border: 1px solid var(--border-color);
+       animation: slideIn 0.3s ease-out;
+   }
+
+   .loading-modal {
+       text-align: center;
+       padding: 40px;
+       max-width: 300px;
+   }
+
+   .loading-spinner {
+       width: 40px;
+       height: 40px;
+       border: 4px solid var(--border-color);
+       border-top: 4px solid var(--accent-blue);
+       border-radius: 50%;
+       animation: spin 1s linear infinite;
+       margin: 0 auto 20px;
+   }
+
+   @keyframes spin {
+       0% { transform: rotate(0deg); }
+       100% { transform: rotate(360deg); }
+   }
+
+   @keyframes slideIn {
+       from {
+           transform: translateY(-50px);
+           opacity: 0;
+       }
+       to {
+           transform: translateY(0);
+           opacity: 1;
+       }
+   }
+
+   .modal-header {
+       padding: 20px;
+       border-bottom: 1px solid var(--border-color);
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+   }
+
+   .modal-header h2 {
+       margin: 0;
+       color: var(--text-primary);
+       font-size: 1.5rem;
+   }
+
+   .close {
+       color: var(--text-muted);
+       font-size: 28px;
+       font-weight: bold;
+       cursor: pointer;
+       transition: color 0.3s ease;
+   }
+
+   .close:hover {
+       color: var(--text-primary);
+   }
+
+   .modal-body {
+       padding: 20px;
+   }
+
+   .modal-footer {
+       padding: 20px;
+       border-top: 1px solid var(--border-color);
+       display: flex;
+       justify-content: flex-end;
+       gap: 12px;
+   }
+
+   .sentence-summary {
+       background: var(--bg-tertiary);
+       border: 1px solid var(--border-color);
+       border-radius: 8px;
+       padding: 16px;
+       margin: 16px 0;
+   }
+
+   .sentence-summary h4 {
+       color: var(--text-primary);
+       margin-bottom: 8px;
+   }
+
+   .sentence-summary p {
+       color: var(--text-secondary);
+       margin: 4px 0;
+   }
+
+   .warning-text {
+       color: var(--accent-yellow);
+       font-style: italic;
+       margin-top: 16px;
+   }
+
+   .success-message {
+       color: var(--accent-green);
+       text-align: center;
+   }
+
+   .error-message {
+       color: var(--accent-red);
+       text-align: center;
+   }
 </style>
 
-<script>
-  const selectedItems = new Set<HTMLElement>();
+<script define:vars={{ citizenId: id, officerData: sourceOfficerData }}>
+  const selectedItems = new Set();
 
+  // === SISTEMA DE SELECCIÓN DE CÓDIGOS PENALES ===
   function initializePenalCodeSelection() {
     const wrappers = document.querySelectorAll('.card-wrapper');
     if (!wrappers.length) return;
 
     wrappers.forEach(wrapper => {
-      if ((wrapper as HTMLElement).dataset.listenerAttached === 'true') return;
-      wrapper.addEventListener('click', () => {
+      if (wrapper.dataset.listenerAttached === 'true') return;
+      
+      wrapper.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
         wrapper.classList.toggle('selected');
         if (wrapper.classList.contains('selected')) {
-          selectedItems.add(wrapper as HTMLElement);;
+          selectedItems.add(wrapper);
         } else {
-          selectedItems.delete(wrapper as HTMLElement);
+          selectedItems.delete(wrapper);
         }
         updateStats();
+        updateApplyButton();
       });
 
-     (wrapper as HTMLElement).dataset.listenerAttached = 'true';
+      wrapper.dataset.listenerAttached = 'true';
     });
   }
 
   function updateStats() {
-  let totalMulta = 0;
-  let totalCondena = 0;
+    let totalMulta = 0;
+    let totalCondena = 0;
 
-  selectedItems.forEach((el: HTMLElement) => {
-    const fine = parseInt(el.dataset.fine || "0");
-    const prison = parseInt(el.dataset.prison || "0");
-    totalMulta += fine;
-    totalCondena += prison;
-  });
+    selectedItems.forEach((el) => {
+      const fine = parseInt(el.dataset.fine || "0");
+      const prison = parseInt(el.dataset.prison || "0");
+      totalMulta += fine;
+      totalCondena += prison;
+    });
 
-  const cards = document.querySelectorAll(".offense-resume-card .stats-card");
-  if (cards.length < 3) return;
+    // Actualizar las tarjetas de estadísticas
+    const statsCards = document.querySelectorAll('.offense-resume-card .card');
+    if (statsCards.length >= 3) {
+      const multaCard = statsCards[0].querySelector('.total');
+      const condenaCard = statsCards[1].querySelector('.total');
+      const crimenesCard = statsCards[2].querySelector('.total');
 
-  const multaNode = cards[0].querySelector(".stats-card-spec-value");
-  const condenaNode = cards[1].querySelector(".stats-card-spec-value");
-  const crimenesNode = cards[2].querySelector(".stats-card-spec-value");
-
-  if (multaNode) multaNode.textContent = `${totalMulta} $`;
-  if (condenaNode) condenaNode.textContent = totalCondena.toString();
-  if (crimenesNode) crimenesNode.textContent = selectedItems.size.toString();
-}
-
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializePenalCodeSelection);
-  } else {
-    initializePenalCodeSelection();
+      if (multaCard) multaCard.textContent = `${totalMulta} $`;
+      if (condenaCard) condenaCard.textContent = `${totalCondena} meses`;
+      if (crimenesCard) crimenesCard.textContent = selectedItems.size.toString();
+    }
   }
 
-  document.addEventListener('astro:page-load', initializePenalCodeSelection);
-</script>
+  function updateApplyButton() {
+    const applyButton = document.getElementById('applyButton');
+    if (applyButton) {
+      applyButton.disabled = selectedItems.size === 0;
+    }
+  }
 
+  // === SISTEMA DE FILTRADO Y BÚSQUEDA ===
+  function initializeFiltering() {
+    const searchInput = document.getElementById('searchInput');
+    const penalCodesGrid = document.getElementById('penalCodesGrid');
+    const noResults = document.getElementById('noResults');
+    
+    if (!searchInput || !penalCodesGrid || !noResults) return;
+
+    let currentCategory = 'Todos';
+    let currentSearchTerm = '';
+
+    function filterCodes() {
+      const allCards = penalCodesGrid.querySelectorAll('.card-wrapper');
+      let visibleCount = 0;
+
+      allCards.forEach(card => {
+        const name = card.querySelector('.card-header-name h1')?.textContent?.toLowerCase() || '';
+        const description = card.querySelector('.card-header-name p')?.textContent?.toLowerCase() || '';
+        const category = card.dataset.category || 'Otros';
+        
+        const categoryMatch = currentCategory === 'Todos' || category === currentCategory;
+        const searchMatch = currentSearchTerm === '' || 
+                           name.includes(currentSearchTerm) || 
+                           description.includes(currentSearchTerm);
+        
+        const shouldShow = categoryMatch && searchMatch;
+        
+        if (shouldShow) {
+          card.style.display = 'block';
+          card.classList.remove('fade-out');
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+          card.classList.add('fade-out');
+        }
+      });
+
+      if (visibleCount === 0) {
+        noResults.style.display = 'flex';
+        penalCodesGrid.style.display = 'none';
+      } else {
+        noResults.style.display = 'none';
+        penalCodesGrid.style.display = 'grid';
+      }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      currentSearchTerm = e.target.value.toLowerCase().trim();
+      filterCodes();
+    });
+
+    document.addEventListener('categoryChange', (e) => {
+      currentCategory = e.detail.category;
+      filterCodes();
+    });
+
+    filterCodes();
+  }
+
+  function addCategoriesToCards() {
+    const cards = document.querySelectorAll('.card-wrapper');
+    
+    cards.forEach(card => {
+      const cardId = parseInt(card.dataset.id);
+      
+      if (window.penalCodesData && Array.isArray(window.penalCodesData)) {
+        const penalCode = window.penalCodesData.find(code => code.id === cardId);
+        if (penalCode && penalCode.category) {
+          card.dataset.category = penalCode.category;
+        }
+      }
+    });
+  }
+
+  async function loadPenalCodesForFiltering() {
+    try {
+      const response = await fetch('http://localhost:3000/api/penal-codes');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          window.penalCodesData = data.data;
+          return true;
+        }
+      }
+    } catch (error) {
+      console.warn('No se pudieron cargar datos del backend para filtrado');
+    }
+    return false;
+  }
+
+  function initializePenalCodeSelectionWithFilters() {
+    initializePenalCodeSelection();
+    addCategoriesToCards();
+    initializeFiltering();
+  }
+
+  // === SISTEMA DE MODALES ===
+  function showModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+  }
+
+  function hideModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  function showConfirmModal() {
+    const summary = document.getElementById('sentenceSummary');
+    let totalMulta = 0;
+    let totalCondena = 0;
+    const selectedCrimes = [];
+
+    selectedItems.forEach((el) => {
+      const fine = parseInt(el.dataset.fine || "0");
+      const prison = parseInt(el.dataset.prison || "0");
+      const name = el.querySelector('.card-header-name h1')?.textContent || 'Crime desconocido';
+      
+      totalMulta += fine;
+      totalCondena += prison;
+      selectedCrimes.push({ name, fine, prison });
+    });
+
+    summary.innerHTML = `
+      <h4>Crímenes seleccionados:</h4>
+      ${selectedCrimes.map(crime => `
+        <p>• ${crime.name} - $${crime.fine} | ${crime.prison} meses</p>
+      `).join('')}
+      <hr style="margin: 12px 0; border: 1px solid var(--border-color);">
+      <p><strong>Total multa: $${totalMulta}</strong></p>
+      <p><strong>Total condena: ${totalCondena} meses</strong></p>
+      <p><strong>Total crímenes: ${selectedItems.size}</strong></p>
+    `;
+
+    showModal('confirmModal');
+  }
+
+  async function applySentence() {
+    hideModal('confirmModal');
+    showModal('loadingModal');
+
+    try {
+      const selectedCrimes = Array.from(selectedItems).map(el => ({
+        penal_code_id: parseInt(el.dataset.id),
+        notes: null
+      }));
+
+      const results = await Promise.all(
+        selectedCrimes.map(crime => 
+          fetch(`/citizens/${citizenId}/crimes`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              officer_id: officerData.badge,
+              penal_code_id: crime.penal_code_id,
+              notes: crime.notes
+            }),
+          })
+        )
+      );
+
+      const responses = await Promise.all(results.map(r => r.json()));
+      
+      hideModal('loadingModal');
+
+      const allSuccessful = responses.every(resp => resp.success);
+
+      if (allSuccessful) {
+        showSuccessModal(responses.length);
+      } else {
+        const errorMessages = responses
+          .filter(resp => !resp.success)
+          .map(resp => resp.message)
+          .join(', ');
+        showErrorModal(`Error aplicando algunos crímenes: ${errorMessages}`);
+      }
+
+    } catch (error) {
+      hideModal('loadingModal');
+      console.error('Error aplicando sentencia:', error);
+      showErrorModal('Error de conectividad. Verifica que el servidor esté disponible.');
+    }
+  }
+
+  function showSuccessModal(crimeCount) {
+    const resultModal = document.getElementById('resultModal');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+
+    resultTitle.textContent = 'Sentencia aplicada exitosamente';
+    resultMessage.innerHTML = `
+      <div class="success-message">
+        <span class="material-symbols-rounded" style="font-size: 3rem; color: var(--accent-green);">check_circle</span>
+        <h3>¡Sentencia aplicada correctamente!</h3>
+        <p>Se han registrado ${crimeCount} crimen(es) para el ciudadano.</p>
+      </div>
+    `;
+
+    showModal('resultModal');
+  }
+
+  function showErrorModal(message) {
+    const resultModal = document.getElementById('resultModal');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+
+    resultTitle.textContent = 'Error al aplicar sentencia';
+    resultMessage.innerHTML = `
+      <div class="error-message">
+        <span class="material-symbols-rounded" style="font-size: 3rem; color: var(--accent-red);">error</span>
+        <h3>Error al procesar la sentencia</h3>
+        <p>${message}</p>
+      </div>
+    `;
+
+    showModal('resultModal');
+  }
+
+  // === INICIALIZACIÓN PRINCIPAL ===
+  document.addEventListener('DOMContentLoaded', async () => {
+    await loadPenalCodesForFiltering();
+    initializePenalCodeSelectionWithFilters();
+    
+    document.getElementById('applyButton')?.addEventListener('click', showConfirmModal);
+
+    document.getElementById('closeModal')?.addEventListener('click', () => hideModal('confirmModal'));
+    document.getElementById('cancelConfirm')?.addEventListener('click', () => hideModal('confirmModal'));
+    document.getElementById('confirmApply')?.addEventListener('click', applySentence);
+    document.getElementById('closeResultModal')?.addEventListener('click', () => hideModal('resultModal'));
+    
+    document.getElementById('resultOkButton')?.addEventListener('click', () => {
+      hideModal('resultModal');
+      window.location.href = `/citizens/${citizenId}`;
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal[style*="block"]').forEach(modal => {
+          modal.style.display = 'none';
+        });
+      }
+    });
+  });
+
+  document.addEventListener('astro:page-load', async () => {
+    await loadPenalCodesForFiltering();
+    initializePenalCodeSelectionWithFilters();
+  });
+</script>
