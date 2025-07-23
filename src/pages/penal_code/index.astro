@@ -24,18 +24,31 @@ try {
         showSearch={true}
         searchPlaceholder="🔍 Buscar sentencia"
     />
-    <GridContainer columns={2}>
-        {penal_codes.map((penal_code) => (
-            <PenalCodeItems 
-                    id={penal_code.id}
-                    name={penal_code.name}
-                    description={penal_code.description}
-                    fine={penal_code.fine}
-                    prison={penal_code.prison}
-                    category={penal_code.category}
-            />
-        ))}
-    </GridContainer>
+    <div class="body">
+        <div class="sidebar">
+            <CategoriesSideBar penal_codes={penal_codes} selectedCategory="Todos"/>
+        </div>
+        <div id="penalCodesList">
+            {penal_codes.map((penal_code) => (
+                <PenalCodeItems 
+                id={penal_code.id}
+                name={penal_code.name}
+                description={penal_code.description}
+                fine={penal_code.fine}
+                prison={penal_code.prison}
+                category={penal_code.category}
+                />
+            ))}
+            
+        </div>
+
+        <div class="no-results" id="noResults" style="display:none;">
+            <span class="material-symbols-rounded">search_off</span>
+            <p>No se encontraron resultados</p>
+        </div>
+
+    </div>
+
 </Layout>
 
 <style>
@@ -87,16 +100,70 @@ try {
         color: white;
         width: 20rem;
     }
-
-    .body-penal-code-section {
-        margin: 1.25rem;
-        overflow-y: auto;
-        height: 100%;
-    }
-
     .body {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+       display: grid;
+       grid-template-columns: auto 1fr;
+       gap: 8px;
+       overflow-y: auto;
+       flex: 1;
+       min-height: 0;
     }
+
+    .sidebar {
+        margin: 10px 0px;
+    }
+
 </style>
+
+<script>
+/* Full hecho por IA esta wea xd */
+(function () {
+  const grid     = document.getElementById('penalCodesList')!;
+  const noRes    = document.getElementById('noResults');
+  const searchEl = document.getElementById('searchInput') as HTMLInputElement | null;
+
+  let currentCategory = 'Todos';
+  let currentSearch   = '';
+
+  const cards = Array.from(grid.querySelectorAll<HTMLElement>('.card-wrapper'));
+  const norm  = (s: string) => (s || '').toLowerCase().trim();
+
+  function applyFilters() {
+    const term = norm(currentSearch);
+    let visible = 0;
+
+    cards.forEach(card => {
+      const cat  = card.dataset.category ?? 'Sin categoría';
+      const name = card.dataset.name ?? '';
+      const desc = card.dataset.description ?? '';
+
+      const matchCat    = currentCategory === 'Todos' || cat === currentCategory;
+      const matchSearch = !term || norm(name).includes(term) || norm(desc).includes(term);
+
+      const show = matchCat && matchSearch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (noRes) noRes.style.display = visible === 0 ? 'flex' : 'none';
+  }
+
+  if (searchEl) {
+    let t: number;
+    searchEl.addEventListener('input', e => {
+      clearTimeout(t);
+      t = window.setTimeout(() => {
+        currentSearch = (e.target as HTMLInputElement).value;
+        applyFilters();
+      }, 150);
+    });
+  }
+
+  document.addEventListener('categoryChange', (e: any) => {
+    currentCategory = e.detail.category;
+    applyFilters();
+  });
+
+  applyFilters();
+})();
+</script>

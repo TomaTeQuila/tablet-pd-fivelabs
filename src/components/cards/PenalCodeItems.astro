@@ -62,7 +62,7 @@ const { id, name, description, fine, prison, category } = Astro.props;
         background-image: linear-gradient(to right bottom, #161920, #171b24, #181d28, #1a1f2c, #1b2130);
         border: 1px solid #333;
         max-width: 100%;
-        max-height: 400px;
+        max-height: 240px;
         height: 100%;
         transition: all 0.3s ease;
         margin-top: 10px;
@@ -111,13 +111,8 @@ const { id, name, description, fine, prison, category } = Astro.props;
     .card-wrapper {
         position: relative;
         cursor: pointer;
+        max-height: 100%;
     }
-
-    .card-wrapper.selected .card {
-        border: 2px solid var(--accent-blue);
-        background-image: linear-gradient(to right bottom, #1d2331, #121c33, #232d44, #1a202e, #1b2130);
-    }
-
 
     h2 {
         font-size: 1.25rem;
