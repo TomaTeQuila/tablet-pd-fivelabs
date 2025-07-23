@@ -6,6 +6,7 @@ export interface Props {
   fine: number;
   prison?: number;
   category?: string;
+  active?: string;
 }
 
 import { sourceOfficerData } from "../../data/officer";
@@ -13,7 +14,7 @@ const { rank } = sourceOfficerData;
 const highRanks = ["Capitan", "Sargento", "Director"];
 
 const { pathname } = Astro.url;
-const { id, name, description, fine, prison, category } = Astro.props;
+const { id, name, description, fine, prison, category, active } = Astro.props;
 ---
 
 <div class="card-wrapper"
@@ -23,7 +24,7 @@ const { id, name, description, fine, prison, category } = Astro.props;
      data-category={category || 'Sin categoría'}
      data-fine={fine}
      data-prison={prison}>
-  <div class="card">
+  <div class=`card ${active}`>
     <div class="card-header">
       <div class="card-header-name">
         <h1>{name}</h1>
@@ -128,6 +129,20 @@ const { id, name, description, fine, prison, category } = Astro.props;
 
     button:hover {
         color: white;
+    }
+
+    .penal-card.active {
+      border: 2px solid var(--accent-blue);
+      background: rgba(52, 152, 219, 0.08);
+      border-radius: 5px;
+      padding: 0;
+    }
+
+    .active {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      background-image: linear-gradient(to right bottom, #1d2331, #121c33, #232d44, #1a202e, #1b2130);
+      border: 2px solid var(--accent-blue); 
     }
 </style>
 

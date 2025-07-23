@@ -98,7 +98,7 @@ try {
           <div class="search">
             <input
               type="text"
-              placeholder="🔍 Buscar por nombre o descripción"
+              placeholder="🔍 Buscar delitos"
               class="search-input"
               id="searchInput"
               autocomplete="off"
@@ -109,14 +109,17 @@ try {
           <div class="penal-codes-grid" id="penalCodesGrid">
             {penal_codes.length > 0 ? (
               penal_codes.map((penal_code) => (
-                <PenalCodeItems
-                  id={penal_code.id}
-                  name={penal_code.name}
-                  description={penal_code.description}
-                  fine={penal_code.fine}
-                  prison={penal_code.prison}
-                  category={penal_code.category}
-                />
+                <div class="penal-card" data-id={penal_code.id}>
+                  <PenalCodeItems
+                    id={penal_code.id}
+                    name={penal_code.name}
+                    description={penal_code.description}
+                    fine={penal_code.fine}
+                    prison={penal_code.prison}
+                    category={penal_code.category} 
+                    active=""
+                  />
+                </div>
               ))
             ) : (
               <div class="no-codes">
@@ -330,7 +333,6 @@ try {
    .search {
        display: flex;
        width: 100%;
-       margin-bottom: 12px;
    }
    
    .search-input {
@@ -639,7 +641,18 @@ try {
     applyFilters();
   });
 
-  // Primer render
-  applyFilters();
-})();
+    applyFilters();
+  })();
+
+  document.querySelectorAll('.penal-card').forEach(card => {
+  card.addEventListener('click', () => {
+    card.classList.toggle('active');
+    const penalCodeItem = card.querySelector('.card');
+    if (penalCodeItem) {
+      penalCodeItem.classList.toggle('active');
+    }
+  });
+});
+
+
 </script>
