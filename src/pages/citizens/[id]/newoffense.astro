@@ -273,7 +273,7 @@ let totalCrimenes = 0;
         if (wrapper.classList.contains('selected')) {
           selectedItems.add(wrapper as HTMLElement);;
         } else {
-          selectedItems.delete(wrapper);
+          selectedItems.delete(wrapper as HTMLElement);
         }
         updateStats();
       });

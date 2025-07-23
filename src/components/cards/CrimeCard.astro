@@ -190,7 +190,7 @@ const { index, reason, date, hour, details, conviction, fine } = Astro.props;
     }     
 </style>
 
-<script>
+<script lang="ts">
   document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', event => {
       if (event.target.classList.contains('open-modal-btn')) {
