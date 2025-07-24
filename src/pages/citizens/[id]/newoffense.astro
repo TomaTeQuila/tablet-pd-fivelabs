@@ -52,24 +52,30 @@ try {
       </div>
       <div class="offense-resume">
         <div class="offense-resume-card">
-          <StatsCard
-            title="Monto total"
-            icon="attach_money"
-            desc="Total de monto a pagar en base a multas"
-            specValue="0 $"
-          />
-          <StatsCard
-            title="Condena"
-            icon="rule"
-            desc="Total de condena que deberá cumplir el ciudadano"
-            specValue="0 meses"
-          />
-          <StatsCard
-            title="Total crímenes imputados"
-            icon="files"
-            desc="Total de crímenes que se le imputan al ciudadano"
-            specValue="0"
-          />
+          <div id="stats-fine">
+            <StatsCard
+              title="Monto total"
+              icon="attach_money"
+              desc="Total de monto a pagar en base a multas"
+              specValue="0 $"
+            />
+          </div>
+          <div id="stats-prison">
+            <StatsCard
+              title="Condena"
+              icon="rule"
+              desc="Total de condena que deberá cumplir el ciudadano"
+              specValue="0 meses"
+            />
+          </div>
+          <div id="stats-convictions">
+            <StatsCard
+              title="Total crímenes imputados"
+              icon="files"
+              desc="Total de crímenes que se le imputan al ciudadano"
+              specValue="0"
+            />
+          </div>
         </div>
       </div>
     </section>
@@ -346,6 +352,7 @@ try {
        width: 100%;
        max-width: 300px;
        margin-left: auto;
+       margin-right: 8px;
    }
 
    .search-input:focus {
@@ -586,15 +593,47 @@ try {
 
 <script lang="ts">
 (function () {
+  function getSelectedPenalCodes() {
+    return Array.from(document.querySelectorAll('.penal-card.active')).map(card => {
+      // Find the inner .card-wrapper rendered by PenalCodeItems
+      const wrapper = card.querySelector('.card-wrapper');
+      return {
+        fine: wrapper ? Number(wrapper.getAttribute('data-fine')) || 0 : 0,
+        prison: wrapper ? Number(wrapper.getAttribute('data-prison')) || 0 : 0,
+      };
+    });
+  }
+
+  function updateStats() {
+    const selected = getSelectedPenalCodes();
+    const totalFine = selected.reduce((sum, c) => sum + c.fine, 0);
+    const totalPrison = selected.reduce((sum, c) => sum + c.prison, 0);
+    const totalConvictions = selected.length;
+
+    const fineEl = document.querySelector('#stats-fine .total');
+    const prisonEl = document.querySelector('#stats-prison .total');
+    const convictionsEl = document.querySelector('#stats-convictions .total');
+
+    if (fineEl) fineEl.textContent = `${totalFine} $`;
+    if (prisonEl) prisonEl.textContent = `${totalPrison} meses`;
+    if (convictionsEl) convictionsEl.textContent = `${totalConvictions}`;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.penal-card').forEach(card => {
+      card.addEventListener('click', updateStats);
+    });
+    updateStats();
+  });
+  // --- END STATS LIVE UPDATE FEATURE ---
+
   const grid = document.getElementById('penalCodesGrid');
   const noResults = document.getElementById('noResults');
   const searchInput = document.getElementById('searchInput');
 
-  // Estado actual del filtro
   let currentCategory = 'Todos';
   let currentSearch = '';
 
-  // Todas las cards (usa tus data-* del componente PenalCodeItems)
   const cards = Array.from(grid.querySelectorAll('.card-wrapper'));
 
   function normalize(str) {
@@ -644,12 +683,14 @@ try {
     applyFilters();
   })();
 
+  // Funcionalidad pa poder seleccionar cards
   document.querySelectorAll('.penal-card').forEach(card => {
   card.addEventListener('click', () => {
     card.classList.toggle('active');
     const penalCodeItem = card.querySelector('.card');
     if (penalCodeItem) {
       penalCodeItem.classList.toggle('active');
+      document.querySelector('applyButton').toggleAttribute('disabled');
     }
   });
 });
