@@ -591,109 +591,252 @@ try {
    }
 </style>
 
-<script lang="ts">
-(function () {
-  function getSelectedPenalCodes() {
-    return Array.from(document.querySelectorAll('.penal-card.active')).map(card => {
-      // Find the inner .card-wrapper rendered by PenalCodeItems
-      const wrapper = card.querySelector('.card-wrapper');
-      return {
-        fine: wrapper ? Number(wrapper.getAttribute('data-fine')) || 0 : 0,
-        prison: wrapper ? Number(wrapper.getAttribute('data-prison')) || 0 : 0,
-      };
-    });
-  }
-
-  function updateStats() {
-    const selected = getSelectedPenalCodes();
-    const totalFine = selected.reduce((sum, c) => sum + c.fine, 0);
-    const totalPrison = selected.reduce((sum, c) => sum + c.prison, 0);
-    const totalConvictions = selected.length;
-
-    const fineEl = document.querySelector('#stats-fine .total');
-    const prisonEl = document.querySelector('#stats-prison .total');
-    const convictionsEl = document.querySelector('#stats-convictions .total');
-
-    if (fineEl) fineEl.textContent = `${totalFine} $`;
-    if (prisonEl) prisonEl.textContent = `${totalPrison} meses`;
-    if (convictionsEl) convictionsEl.textContent = `${totalConvictions}`;
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.penal-card').forEach(card => {
-      card.addEventListener('click', updateStats);
-    });
-    updateStats();
-  });
-  // --- END STATS LIVE UPDATE FEATURE ---
-
-  const grid = document.getElementById('penalCodesGrid');
-  const noResults = document.getElementById('noResults');
-  const searchInput = document.getElementById('searchInput');
-
-  let currentCategory = 'Todos';
-  let currentSearch = '';
-
-  const cards = Array.from(grid.querySelectorAll('.card-wrapper'));
-
-  function normalize(str) {
-    return (str || '').toLowerCase().trim();
-  }
-
-  function applyFilters() {
-    const term = normalize(currentSearch);
-    let visible = 0;
-
-    cards.forEach(card => {
-      const cat = card.dataset.category || '';
-      const name = card.dataset.name || '';
-      const desc = card.dataset.description || '';
-
-      const matchCategory = currentCategory === 'Todos' || cat === currentCategory;
-      const matchSearch = !term ||
-        normalize(name).includes(term) ||
-        normalize(desc).includes(term);
-
-      const show = matchCategory && matchSearch;
-      card.style.display = show ? '' : 'none';
-      if (show) visible++;
+<script>
+  // Initialize all functionality when page loads (including View Transitions)
+  function initializeNewOffense() {
+    // Clean up any existing event listeners by cloning elements
+    const existingCards = document.querySelectorAll('.penal-card');
+    existingCards.forEach(card => {
+      const newCard = card.cloneNode(true);
+      card.parentNode?.replaceChild(newCard, card);
     });
 
-    if (noResults) noResults.style.display = visible === 0 ? 'flex' : 'none';
-  }
-
-  // Search
-  if (searchInput) {
-    let timeout;
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        currentSearch = e.target.value;
-        applyFilters();
-      }, 150);
-    });
-  }
-
-  // Categoría (evento emitido por el sidebar)
-  document.addEventListener('categoryChange', (e) => {
-    currentCategory = e.detail.category;
-    applyFilters();
-  });
-
-    applyFilters();
-  })();
-
-  // Funcionalidad pa poder seleccionar cards
-  document.querySelectorAll('.penal-card').forEach(card => {
-  card.addEventListener('click', () => {
-    card.classList.toggle('active');
-    const penalCodeItem = card.querySelector('.card');
-    if (penalCodeItem) {
-      penalCodeItem.classList.toggle('active');
-      document.querySelector('applyButton').toggleAttribute('disabled');
+    // Stats functionality
+    function getSelectedPenalCodes() {
+      return Array.from(document.querySelectorAll('.penal-card.active')).map(card => {
+        const wrapper = card.querySelector('.card-wrapper');
+        return {
+          fine: wrapper ? Number(wrapper.getAttribute('data-fine')) || 0 : 0,
+          prison: wrapper ? Number(wrapper.getAttribute('data-prison')) || 0 : 0,
+          id: wrapper ? Number(wrapper.getAttribute('data-id')) || 0 : 0,
+          name: wrapper ? wrapper.getAttribute('data-name') || '' : ''
+        };
+      });
     }
-  });
-});
 
+    function updateStats() {
+      const selected = getSelectedPenalCodes();
+      const totalFine = selected.reduce((sum, c) => sum + c.fine, 0);
+      const totalPrison = selected.reduce((sum, c) => sum + c.prison, 0);
+      const totalConvictions = selected.length;
 
+      const fineEl = document.querySelector('#stats-fine .total');
+      const prisonEl = document.querySelector('#stats-prison .total');
+      const convictionsEl = document.querySelector('#stats-convictions .total');
+      const applyButton = document.getElementById('applyButton') as HTMLButtonElement;
+
+      if (fineEl) fineEl.textContent = `${totalFine} $`;
+      if (prisonEl) prisonEl.textContent = `${totalPrison} meses`;
+      if (convictionsEl) convictionsEl.textContent = `${totalConvictions}`;
+      if (applyButton) applyButton.disabled = totalConvictions === 0;
+    }
+
+    // Card selection functionality
+    document.querySelectorAll('.penal-card').forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('active');
+        const penalCodeItem = card.querySelector('.card');
+        if (penalCodeItem) {
+          penalCodeItem.classList.toggle('active');
+        }
+        updateStats();
+      });
+    });
+
+    // Filtering functionality
+    const grid = document.getElementById('penalCodesGrid');
+    const noResults = document.getElementById('noResults');
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+
+    let currentCategory = 'Todos';
+    let currentSearch = '';
+    let searchTimeout: number;
+
+    const cards = Array.from(document.querySelectorAll('.card-wrapper')) as HTMLElement[];
+
+    function normalize(str: string) {
+      return (str || '').toLowerCase().trim();
+    }
+
+    function applyFilters() {
+      const term = normalize(currentSearch);
+      let visible = 0;
+
+      cards.forEach(card => {
+        const cat = card.dataset.category || '';
+        const name = card.dataset.name || '';
+        const desc = card.dataset.description || '';
+
+        const matchCategory = currentCategory === 'Todos' || cat === currentCategory;
+        const matchSearch = !term ||
+          normalize(name).includes(term) ||
+          normalize(desc).includes(term);
+
+        const show = matchCategory && matchSearch;
+        const parentCard = card.closest('.penal-card') as HTMLElement;
+        if (parentCard) {
+          parentCard.style.display = show ? '' : 'none';
+        }
+        if (show) visible++;
+      });
+
+      if (noResults) noResults.style.display = visible === 0 ? 'flex' : 'none';
+    }
+
+    // Search input handler
+    if (searchInput) {
+      const newSearchInput = searchInput.cloneNode(true) as HTMLInputElement;
+      searchInput.parentNode?.replaceChild(newSearchInput, searchInput);
+      
+      newSearchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = window.setTimeout(() => {
+          currentSearch = (e.target as HTMLInputElement).value;
+          applyFilters();
+        }, 150);
+      });
+    }
+
+    // Category change handler
+    const categoryHandler = (e: any) => {
+      currentCategory = e.detail.category;
+      applyFilters();
+    };
+    
+    document.removeEventListener('categoryChange', categoryHandler);
+    document.addEventListener('categoryChange', categoryHandler);
+
+    // Modal functionality
+    const applyButton = document.getElementById('applyButton');
+    const confirmModal = document.getElementById('confirmModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelConfirm = document.getElementById('cancelConfirm');
+    const confirmApply = document.getElementById('confirmApply');
+    const loadingModal = document.getElementById('loadingModal');
+    const resultModal = document.getElementById('resultModal');
+    const closeResultModal = document.getElementById('closeResultModal');
+    const resultOkButton = document.getElementById('resultOkButton');
+
+    if (applyButton) {
+      const newApplyButton = applyButton.cloneNode(true);
+      applyButton.parentNode?.replaceChild(newApplyButton, applyButton);
+      
+      newApplyButton.addEventListener('click', () => {
+        const selected = getSelectedPenalCodes();
+        if (selected.length === 0) return;
+
+        const summaryEl = document.getElementById('sentenceSummary');
+        if (summaryEl) {
+          const totalFine = selected.reduce((sum, c) => sum + c.fine, 0);
+          const totalPrison = selected.reduce((sum, c) => sum + c.prison, 0);
+          
+          summaryEl.innerHTML = `
+            <h4>Crímenes seleccionados: ${selected.length}</h4>
+            ${selected.map(c => `<p>• ${c.name}</p>`).join('')}
+            <hr style="margin: 12px 0; border-color: var(--border-color);">
+            <p><strong>Multa total:</strong> ${totalFine} $</p>
+            <p><strong>Condena total:</strong> ${totalPrison} meses</p>
+          `;
+        }
+
+        if (confirmModal) confirmModal.style.display = 'block';
+      });
+    }
+
+    // Modal close handlers
+    [closeModal, cancelConfirm, closeResultModal, resultOkButton].forEach(el => {
+      if (el) {
+        const newEl = el.cloneNode(true);
+        el.parentNode?.replaceChild(newEl, el);
+        newEl.addEventListener('click', () => {
+          if (confirmModal) confirmModal.style.display = 'none';
+          if (resultModal) resultModal.style.display = 'none';
+        });
+      }
+    });
+
+    // Confirm apply handler
+    if (confirmApply) {
+      const newConfirmApply = confirmApply.cloneNode(true);
+      confirmApply.parentNode?.replaceChild(newConfirmApply, confirmApply);
+      
+      newConfirmApply.addEventListener('click', async () => {
+        const selected = getSelectedPenalCodes();
+        const citizenId = window.location.pathname.split('/')[2];
+        
+        if (confirmModal) confirmModal.style.display = 'none';
+        if (loadingModal) loadingModal.style.display = 'block';
+
+        try {
+          // Here you would make your API calls to save the crimes
+          // For now, we'll simulate with a timeout
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          if (loadingModal) loadingModal.style.display = 'none';
+          
+          const resultTitle = document.getElementById('resultTitle');
+          const resultMessage = document.getElementById('resultMessage');
+          
+          if (resultTitle) resultTitle.textContent = 'Sentencia aplicada exitosamente';
+          if (resultMessage) {
+            resultMessage.innerHTML = `
+              <div class="success-message">
+                <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-green);">check_circle</span>
+                <p>La sentencia ha sido registrada correctamente.</p>
+                <p>El ciudadano será notificado de los cargos.</p>
+              </div>
+            `;
+          }
+          
+          if (resultModal) resultModal.style.display = 'block';
+          
+          // Redirect after success
+          setTimeout(() => {
+            window.location.href = `/citizens/${citizenId}`;
+          }, 2000);
+          
+        } catch (error) {
+          if (loadingModal) loadingModal.style.display = 'none';
+          
+          const resultTitle = document.getElementById('resultTitle');
+          const resultMessage = document.getElementById('resultMessage');
+          
+          if (resultTitle) resultTitle.textContent = 'Error al aplicar sentencia';
+          if (resultMessage) {
+            resultMessage.innerHTML = `
+              <div class="error-message">
+                <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-red);">error</span>
+                <p>Ocurrió un error al registrar la sentencia.</p>
+                <p>Por favor, intente nuevamente.</p>
+              </div>
+            `;
+          }
+          
+          if (resultModal) resultModal.style.display = 'block';
+        }
+      });
+    }
+
+    // Click outside modal to close
+    window.addEventListener('click', (e) => {
+      if (confirmModal && resultModal) {
+        if (e.target === confirmModal) confirmModal.style.display = 'none';
+        if (e.target === resultModal) resultModal.style.display = 'none';
+      }
+    });
+
+    // Initial setup
+    updateStats();
+    applyFilters();
+  }
+
+  // Initialize on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeNewOffense);
+  } else {
+    initializeNewOffense();
+  }
+
+  // Re-initialize on View Transitions
+  document.addEventListener('astro:page-load', initializeNewOffense);
 </script>
