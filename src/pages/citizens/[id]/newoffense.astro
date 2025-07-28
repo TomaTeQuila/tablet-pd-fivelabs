@@ -631,7 +631,7 @@ try {
       if (applyButton) applyButton.disabled = totalConvictions === 0;
     }
 
-    // Card selection functionality
+    // Card selection 
     document.querySelectorAll('.penal-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('active');
@@ -643,8 +643,7 @@ try {
       });
     });
 
-    // Filtering functionality
-    const grid = document.getElementById('penalCodesGrid');
+    // Filtra
     const noResults = document.getElementById('noResults');
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;
 
@@ -683,7 +682,7 @@ try {
       if (noResults) noResults.style.display = visible === 0 ? 'flex' : 'none';
     }
 
-    // Search input handler
+    // Buscador
     if (searchInput) {
       const newSearchInput = searchInput.cloneNode(true) as HTMLInputElement;
       searchInput.parentNode?.replaceChild(newSearchInput, searchInput);
@@ -697,7 +696,7 @@ try {
       });
     }
 
-    // Category change handler
+    // Cambiar categoria en filtrao
     const categoryHandler = (e: any) => {
       currentCategory = e.detail.category;
       applyFilters();
@@ -755,66 +754,86 @@ try {
       }
     });
 
-    // Confirm apply handler
     if (confirmApply) {
-      const newConfirmApply = confirmApply.cloneNode(true);
-      confirmApply.parentNode?.replaceChild(newConfirmApply, confirmApply);
+      confirmApply.replaceWith(confirmApply.cloneNode(true));
+      const newConfirmButton = document.getElementById('confirmApply');
       
-      newConfirmApply.addEventListener('click', async () => {
-        const selected = getSelectedPenalCodes();
-        const citizenId = window.location.pathname.split('/')[2];
-        
-        if (confirmModal) confirmModal.style.display = 'none';
-        if (loadingModal) loadingModal.style.display = 'block';
+      if (newConfirmButton) {
+        newConfirmButton.addEventListener('click', async () => {
+          const selected = getSelectedPenalCodes();
+          const citizenId = window.location.pathname.split('/')[2];
+          
+          console.log('Enviando crímenes individualmente:', selected.map(s => ({
+            officer_id: "PD21",
+            penal_code_id: s.id,
+            notes: `Crimen aplicado: ${s.name}`
+          })));
+          
+          if (confirmModal) confirmModal.style.display = 'none';
+          if (loadingModal) loadingModal.style.display = 'block';
 
-        try {
-          // Here you would make your API calls to save the crimes
-          // For now, we'll simulate with a timeout
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          if (loadingModal) loadingModal.style.display = 'none';
-          
-          const resultTitle = document.getElementById('resultTitle');
-          const resultMessage = document.getElementById('resultMessage');
-          
-          if (resultTitle) resultTitle.textContent = 'Sentencia aplicada exitosamente';
-          if (resultMessage) {
-            resultMessage.innerHTML = `
-              <div class="success-message">
-                <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-green);">check_circle</span>
-                <p>La sentencia ha sido registrada correctamente.</p>
-                <p>El ciudadano será notificado de los cargos.</p>
-              </div>
-            `;
+          try {
+            console.log('Haciendo llamadas a /citizens/[id]/crimes...');
+            
+            // Crear las promesas para cada crimen por separado
+            const offensePromises = selected.map(offense => 
+              fetch(`/citizens/${citizenId}/crimes`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  officer_id: "PD21",
+                  penal_code_id: offense.id,
+                  notes: `Crimen aplicado: ${offense.name}`
+                })
+              })
+            );
+
+            setTimeout(() => {
+              window.location.href = `/citizens/${citizenId}`;
+            }, 2000);
+
+          } catch (error) {
+            console.error('Error completo en catch:', error);
+            console.error('Tipo de error:', error.constructor.name);
+            console.error('Stack trace:', error.stack);
+            
+            if (loadingModal) loadingModal.style.display = 'none';
+            
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            if (resultTitle) resultTitle.textContent = 'Error al aplicar sentencia';
+            
+            let errorMessage = 'Por favor, intente nuevamente.';
+            
+            // Mensajes más específicos según el tipo de error
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+              errorMessage = 'No se pudo conectar con el servidor. Verifique su conexión.';
+            } else if (error.message.includes('404')) {
+              errorMessage = 'El endpoint de crímenes no existe.';
+            } else if (error.message.includes('500')) {
+              errorMessage = 'Error interno del servidor. Revise los logs del backend.';
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+            
+            if (resultMessage) {
+              resultMessage.innerHTML = `
+                <div class="error-message">
+                  <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-red);">error</span>
+                  <p>Ocurrió un error al registrar la sentencia.</p>
+                  <p><strong>Detalles:</strong> ${errorMessage}</p>
+                  <p><em>Revisa la consola del navegador para más información.</em></p>
+                </div>
+              `;
+            }
+            
+            if (resultModal) resultModal.style.display = 'block';
           }
-          
-          if (resultModal) resultModal.style.display = 'block';
-          
-          // Redirect after success
-          setTimeout(() => {
-            window.location.href = `/citizens/${citizenId}`;
-          }, 2000);
-          
-        } catch (error) {
-          if (loadingModal) loadingModal.style.display = 'none';
-          
-          const resultTitle = document.getElementById('resultTitle');
-          const resultMessage = document.getElementById('resultMessage');
-          
-          if (resultTitle) resultTitle.textContent = 'Error al aplicar sentencia';
-          if (resultMessage) {
-            resultMessage.innerHTML = `
-              <div class="error-message">
-                <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-red);">error</span>
-                <p>Ocurrió un error al registrar la sentencia.</p>
-                <p>Por favor, intente nuevamente.</p>
-              </div>
-            `;
-          }
-          
-          if (resultModal) resultModal.style.display = 'block';
-        }
-      });
+        });
+      }
     }
 
     // Click outside modal to close
